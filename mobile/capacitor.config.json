@@ -1,0 +1,7 @@
+{
+  "appId": "com.yfeeeee.yfecraft",
+  "appName": "YFE Craft",
+  "webDir": "www",
+  "server": { "androidScheme": "https" },
+  "android": { "backgroundColor": "#0b1220" }
+}
