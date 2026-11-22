@@ -132,7 +132,7 @@ h1{margin:0 0 4px;font-size:34px;letter-spacing:.5px;background:linear-gradient(
 <div id="title" class="overlay">
   <div class="card menu">
     <h1>YFE Craft</h1>
-    <div class="sub">Воксельный мир с энергией, машинами и магией · v4.4</div>
+    <div class="sub">Воксельный мир с энергией, машинами и магией · v4.5</div>
     <input id="nameIn" maxlength="16" placeholder="Твой ник" value="Игрок">
     <input id="srvIn" maxlength="120" placeholder="Адрес сервера (для приложения): your-app.up.railway.app" style="display:none">
     <button class="big main" id="bPlay">▶ Одиночная игра</button>
@@ -186,6 +186,8 @@ h1{margin:0 0 4px;font-size:34px;letter-spacing:.5px;background:linear-gradient(
   <p><b>Кузница.</b> Плавильня (руда/пыль/слитки + уголь) → жидкий металл, медь:олово 3:1 = бронза. Резервуар рядом хранит металл. Литейный стол + форма (на верстаке: 2 булыжника + слиток) отливает слитки и головки. Головка + 2 палки на верстаке = литой инструмент. Инструменты изнашиваются — полоска прочности под значком.</p>
   <p><b>Энергия природы.</b> Водяное колесо (вода рядом, 12 EU/с) и ветряк (небо над головой, до 12 EU/с) соединяются кабелями с прессом и жерновами; лопасти вращаются.</p>
   <p><b>Конвейер.</b> Лента сама выбирает направление по тому, куда ты смотришь при установке, и несёт тебя по себе. Ведро: набери воды, стоя в воде, и вылей в резервуар (водяное колесо рядом с таким резервуаром работает).</p>
+  <p><b>Стол исследований и Таумономикон.</b> Стол исследований (верстак: 6 досок, 2 палки, 2 шерсти) + письменные принадлежности (палка, уголь, шерсть) — изучай знания за аспекты, они открывают рецепты. Таумономикон (3 доски, кристалл, шерсть) — книга с основами, аспектами и списком знаний.</p>
+  <p><b>Управление предметами.</b> Нажми на предмет — он подсветится, внизу появится название и описание. Затем нажми на нужную ячейку (в сундуке, машине или инвентаре) — предмет переложится. Повторное нажатие на ту же ячейку в контейнере забирает предмет себе.</p>
   <p style="opacity:.6;font-size:12px">Разработчик: @yfeeeee</p>
   <button class="big main" id="helpClose">Понятно</button>
   <div class="credit">Разработчик: @yfeeeee</div>
@@ -378,7 +380,7 @@ const RECIPES = [
 (function () { const mats = [0, B.PLANKS, B.COBBLE, I.ING_IRON, I.DIAMOND]; for (let t = 1; t <= 4; t++) { const m = mats[t]; RECIPES.push(R(150 + t, 1, { [m]: 3, [I.STICK]: 2 }, "table"), R(160 + t, 1, { [m]: 1, [I.STICK]: 2 }, "table"), R(170 + t, 1, { [m]: 2, [I.STICK]: 1 }, "table")); } })();
 // ---------- атлас текстур (процедурно, «векторный» cel-стиль) ----------
 const TS = 32, AT = 16;
-const TILE_NAMES = ["grass_top", "grass_side", "dirt", "stone", "sand", "log_side", "log_top", "leaves", "planks", "cobble", "coal", "copper", "tin", "iron", "gold", "diamond", "glass", "bedrock", "table_top", "table_side", "furnace_front", "furnace_top", "arcane_top", "arcane_side", "lamp", "water", "stonebrick", "machine_top", "gen_side", "smelter_side", "macer_side", "term_side", "battery_side", "solar_top", "crucible_top", "crucible_side", "chest_top", "chest_side", "cable", "mecable", "drive_side", "altar_top", "altar_side", "qb_side", "torch", "torch_flame", "aspipe", "jar_top", "jar_side", "snow", "cactus_top", "cactus_side", "fl_r", "fl_y", "fl_stem", "bed_top", "bed_side", "wool", "wool_r", "wool_y", "chestI_top", "chestI_side", "chestG_top", "chestG_side", "chestD_top", "chestD_side", "press_side", "mill_side", "smelt_top", "smelt_side", "tank_top", "tank_side", "cast_top", "cast_side", "wheel_top", "wheel_side", "wind_top", "wind_side", "belt_e", "belt_w", "belt_s", "belt_n", "belt_side"];
+const TILE_NAMES = ["grass_top", "grass_side", "dirt", "stone", "sand", "log_side", "log_top", "leaves", "planks", "cobble", "coal", "copper", "tin", "iron", "gold", "diamond", "glass", "bedrock", "table_top", "table_side", "furnace_front", "furnace_top", "arcane_top", "arcane_side", "lamp", "water", "stonebrick", "machine_top", "gen_side", "smelter_side", "macer_side", "term_side", "battery_side", "solar_top", "crucible_top", "crucible_side", "chest_top", "chest_side", "cable", "mecable", "drive_side", "altar_top", "altar_side", "qb_side", "torch", "torch_flame", "aspipe", "jar_top", "jar_side", "snow", "cactus_top", "cactus_side", "fl_r", "fl_y", "fl_stem", "bed_top", "bed_side", "wool", "wool_r", "wool_y", "chestI_top", "chestI_side", "chestG_top", "chestG_side", "chestD_top", "chestD_side", "press_side", "mill_side", "smelt_top", "smelt_side", "tank_top", "tank_side", "cast_top", "cast_side", "wheel_top", "wheel_side", "wind_top", "wind_side", "belt_e", "belt_w", "belt_s", "belt_n", "belt_side", "rt_top", "rt_side"];
 const TILE = {}; TILE_NAMES.forEach((n, i) => (TILE[n] = i));
 const tileCanvas = {};
 function mkRng(seed) { let s = seed >>> 0; return () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296); }
@@ -459,6 +461,11 @@ function genTile(name) {
     for (let y = 0; y < TS; y++) for (let x = 0; x < TS; x++) { const e = x < 2 || y < 2 || x > TS - 3 || y > TS - 3; setpx(img, x, y, e ? [38, 40, 46] : sh([70, 72, 80], .9 + ((x + y * 2) % 8 < 3 ? .12 : 0))); }
     const dir = { belt_e: [1, 0], belt_w: [-1, 0], belt_s: [0, 1], belt_n: [0, -1] }[name];
     if (dir) for (let i = -10; i <= 10; i++) { const a = i * 0.9; for (let t = 0; t < 3; t++) { const cx = 15.5 + dir[0] * (i + 2) + (dir[1] ? 0 : 0), cy = 15.5 + dir[1] * (i + 2); if (i % 6 === 0) { for (let w = -5; w <= 5; w++) { const px = Math.round(cx - dir[0] * Math.abs(w) * .9 + (dir[1] ? w : 0)), py = Math.round(cy - dir[1] * Math.abs(w) * .9 + (dir[0] ? w : 0)); setpx(img, px, py, [240, 200, 70]); setpx(img, px + (dir[1] ? 0 : 0), py, [240, 200, 70]); } } } }
+  }
+  else if (name === "rt_top" || name === "rt_side") {
+    for (let y = 0; y < TS; y++) for (let x = 0; x < TS; x++) { const e = x < 2 || y < 2 || x > TS - 3 || y > TS - 3; setpx(img, x, y, sh([140, 98, 58], e ? .6 : .9 + hash2(x >> 1, y >> 3, 17) * .16)); }
+    if (name === "rt_top") { for (let y = 5; y < 27; y++) for (let x = 6; x < 24; x++) setpx(img, x, y, [232, 220, 186]); for (let y = 8; y < 24; y += 3) for (let x = 9; x < 21; x++) if ((x + y) % 7) setpx(img, x, y, [90, 70, 50]); for (let y = 20; y < 28; y++) for (let x = 22; x < 29; x++) setpx(img, x, y, (x - 25) * (x - 25) + (y - 24) * (y - 24) < 10 ? [30, 30, 60] : [60, 60, 70]); for (let i2 = 0; i2 < 10; i2++) setpx(img, 8 + i2, 6 + i2 * 0 + (i2 >> 1), [60, 50, 120]); }
+    else for (let x = 6; x < 26; x++) { setpx(img, x, 10, [90, 60, 36]); setpx(img, x, 22, [90, 60, 36]); }
   }
   else if (name === "glass") {
     for (let y = 0; y < TS; y++) for (let x = 0; x < TS; x++) { const e = x < 2 || y < 2 || x > TS - 3 || y > TS - 3; setpx(img, x, y, e ? [200, 232, 244] : [180, 220, 240], e ? 255 : 40); }
@@ -607,6 +614,8 @@ function itemIcon(id) {
     else if (id >= 1500 && id < 1515) { const m = Math.floor((id - 1500) / 3), k = (id - 1500) % 3, col = MET_COL[TM[m]]; if (k === 0) { ol(poly([[6, 26], [10, 14], [24, 8], [38, 14], [42, 26], [34, 20], [24, 17], [14, 20]]), col); ol(poly([[20, 17], [28, 17], [28, 38], [20, 38]]), "#6b4a28", 1); } else if (k === 1) { ol(poly([[10, 10], [30, 8], [38, 22], [30, 38], [22, 38], [24, 22]]), col); } else { ol(poly([[24, 4], [32, 12], [30, 40], [18, 40], [16, 12]]), col); ol(poly([[22, 10], [26, 10], [26, 36], [22, 36]]), "#ffffff55", 1); } }
     else if (id >= I.FORM_INGOT && id <= I.FORM_BLADE) { ol(poly([[6, 12], [42, 12], [42, 38], [6, 38]]), "#6c7080"); c.fillStyle = "#2a2d38"; if (id === I.FORM_INGOT) c.fillRect(12, 20, 24, 10); else if (id === I.FORM_PICK) { c.fillRect(10, 18, 28, 6); c.fillRect(21, 18, 6, 16); } else if (id === I.FORM_AXE) { c.fillRect(14, 16, 18, 14); c.fillRect(30, 16, 4, 20); } else { c.fillRect(21, 15, 6, 20); } }
     else if (id === I.BUCKET || id === I.BUCKET_W) { ol(poly([[10, 12], [38, 12], [34, 40], [14, 40]]), "#c8cdd6"); if (id === I.BUCKET_W) { ol(poly([[12, 16], [36, 16], [33, 26], [15, 26]]), "#3f8fe0", 1); } c.strokeStyle = "#101820"; c.lineWidth = 3; c.beginPath(); c.arc(24, 12, 12, Math.PI, 0); c.stroke(); }
+    else if (id === I.SCRIBE) { c.lineCap = "round"; c.strokeStyle = "#101820"; c.lineWidth = 7; c.beginPath(); c.moveTo(12, 38); c.lineTo(36, 8); c.stroke(); c.strokeStyle = "#f2f2f2"; c.lineWidth = 3.5; c.stroke(); ol(poly([[8, 30], [20, 30], [20, 42], [8, 42]]), "#2a2f6a"); }
+    else if (id === I.BOOK) { ol(poly([[8, 8], [40, 8], [40, 40], [8, 40]]), "#5a2f8a"); ol(poly([[12, 12], [36, 12], [36, 36], [12, 36]]), "#7d4bb8", 1); c.fillStyle = "#ffd84a"; c.beginPath(); c.arc(24, 24, 6, 0, 7); c.fill(); c.fillStyle = "#5a2f8a"; c.fillRect(22, 18, 4, 12); c.fillRect(18, 22, 12, 4); }
     else if (id === I.ING_BRONZE) { ol(poly([[6, 28], [14, 14], [42, 14], [34, 28]]), "#c98a3c"); ol(poly([[6, 28], [34, 28], [34, 36], [6, 36]]), "#a06a28"); }
     else if (id >= I.PLATE_IRON && id <= I.PLATE_GOLD) { const col = { [I.PLATE_IRON]: "#dfe3ea", [I.PLATE_COPPER]: "#e08a55", [I.PLATE_GOLD]: "#ffd84a" }[id]; ol(poly([[6, 30], [14, 16], [42, 16], [36, 30]]), col); ol(poly([[6, 30], [36, 30], [36, 34], [6, 34]]), "#808896", 1); }
     else if (id === I.GEAR) { c.fillStyle = "#101820"; c.beginPath(); c.arc(24, 24, 15, 0, 7); c.fill(); for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; c.save(); c.translate(24, 24); c.rotate(a); c.fillRect(-4, -20, 8, 8); c.restore(); } c.fillStyle = "#c8cdd6"; c.beginPath(); c.arc(24, 24, 13, 0, 7); c.fill(); c.fillStyle = "#101820"; c.beginPath(); c.arc(24, 24, 5, 0, 7); c.fill(); }
@@ -889,7 +898,7 @@ function addItem(id, n, dd) {
   const ms = maxStack(id);
   for (let i = 0; i < 36 && n > 0; i++) { const s = inv[i]; if (s && s.id === id && s.n < ms) { const t = Math.min(ms - s.n, n); s.n += t; n -= t; } }
   for (let i = 0; i < 36 && n > 0; i++) { if (!inv[i]) { const t = Math.min(ms, n); inv[i] = dd ? { id, n: t, d: dd } : { id, n: t }; n -= t; } }
-  refreshUI(); return n;
+  if (G.running) sfx("pickup"); refreshUI(); return n;
 }
 function countItem(id) { let c = 0; for (const s of inv) if (s && s.id === id) c += s.n; return c; }
 function removeItem(id, n) { for (let i = 35; i >= 0 && n > 0; i--) { const s = inv[i]; if (s && s.id === id) { const t = Math.min(s.n, n); s.n -= t; n -= t; if (s.n <= 0) inv[i] = null; } } refreshUI(); }
@@ -921,7 +930,12 @@ function refreshGrid() {
   }
 }
 function slotTap(i) {
-  if (heldIdx < 0) { if (inv[i]) { heldIdx = i; $("hint").textContent = iname(inv[i].id) + " ×" + inv[i].n + " — нажми на другой слот"; } }
+  if (G.csel && cont) {
+    const te = G.csel.te, cs = te.slots[G.csel.i], b = inv[i];
+    if (cs) { const D = TEDEF[te.t]; if (!b) { inv[i] = Object.assign({}, cs); te.slots[G.csel.i] = null; } else if (b.id === cs.id && maxStack(b.id) > 1) { const t = Math.min(maxStack(b.id) - b.n, cs.n); b.n += t; cs.n -= t; if (cs.n <= 0) te.slots[G.csel.i] = null; } else if (!D.accept || D.accept(G.csel.i, b.id)) { inv[i] = Object.assign({}, cs); te.slots[G.csel.i] = b; } else { $("hint").textContent = "Сюда это положить нельзя"; return; } syncTE(te); sfx("pickup"); }
+    G.csel = null; refreshUI(); return;
+  }
+  if (heldIdx < 0) { if (inv[i]) { heldIdx = i; showInfo(inv[i].id, inv[i].n, inv[i].d); } }
   else if (heldIdx === i) heldIdx = -1;
   else {
     const a = inv[heldIdx], b = inv[i];
@@ -977,6 +991,7 @@ function matrixMatch(al) {
 }
 function matrixStart(al) {
   if (G.mx) { toast("Инфузия уже идёт"); return; }
+  sfx("infuse");
   const c = al.slots[0]; if (!c) { toast("Положи предмет на алтарь"); return; }
   const ms = matrixMatch(al); if (!ms.length) { toast("Для этого предмета нет рецептов матрицы"); return; }
   const m = ms.find((q) => q.ok && resOk(q.r.out) && Object.keys(q.r.asp).every((k) => AV(k) >= ac({ st: "infusion", asp: q.r.asp }, k)));
@@ -1059,6 +1074,7 @@ function gridCraft(m) {
   if (!m) return; if (!resOk(m.out)) { $("hint").textContent = "Нужно исследование: " + resName(RES_OF[m.out]); return; }
   if (m.asp) for (const k in m.asp) if (AV(k) < ac(m, k)) { $("hint").textContent = "Не хватает аспекта: " + ASPECTS[k][0]; return; }
   if (m.asp) for (const k in m.asp) spendAsp(k, ac(m, k));
+  sfx("craft");
   for (let i = 0; i < 9; i++) if (G.cg[i] && --G.cg[i].n <= 0) G.cg[i] = null;
   const left = addItem(m.out, m.n); if (left > 0) $("hint").textContent = "Инвентарь полон"; sfx("pop"); $("hint").textContent = "Создано: " + iname(m.out) + " ×" + m.n; refreshAsp(); refreshUI();
 }
@@ -1127,6 +1143,7 @@ function renderJar(box, te) {
 function refreshRecipes() {
   const box = $("recipes"); box.innerHTML = "";
   const craftMode = ["inv", "table", "furnace", "arcane", "infusion"].includes(panelMode);
+  if (panelMode === "restable" || panelMode === "book") { $("tabs").style.display = "none"; $("chips").style.display = "none"; $("rtitle").textContent = panelMode === "book" ? "Таумономикон" : "Стол исследований"; renderResTable(box); return; }
   if (!craftMode) { $("tabs").style.display = "none"; $("chips").style.display = "none"; renderSpecial(box); return; }
   $("tabs").style.display = G.creative ? "flex" : "none"; $("tItems").style.opacity = G.tab === "items" ? 1 : .55; $("tCraft").style.opacity = G.tab === "craft" ? 1 : .55;
   $("chips").style.display = G.creative && G.tab === "items" ? "none" : "flex";
@@ -1183,10 +1200,10 @@ function doCraft(r) {
 }
 function refreshUI() { refreshHotbar(); if (!$("inv").classList.contains("hidden")) { refreshGrid(); refreshRings(); refreshRecipes(); } G.dirtySave = true; }
 function openPanel(mode) {
-  panelMode = mode; heldIdx = -1; if (mode !== "inv") G.tab = "craft"; $("invTitle").textContent = mode === "infusion" ? "Инфузионный алтарь" : mode === "arcane" ? "Арканный стол" : mode === "table" ? "Верстак" : mode === "furnace" ? "Печь" : "Инвентарь";
+  panelMode = mode; heldIdx = -1; G.csel = null; G.openT = performance.now(); if (mode !== "inv") G.tab = "craft"; $("invTitle").textContent = mode === "infusion" ? "Инфузионный алтарь" : mode === "arcane" ? "Арканный стол" : mode === "table" ? "Верстак" : mode === "furnace" ? "Печь" : mode === "restable" ? "Стол исследований" : mode === "book" ? "Таумономикон" : "Инвентарь";
   $("inv").classList.remove("hidden"); $("hint").textContent = "Нажми на предмет, затем на другой слот — переложить или объединить."; refreshAsp(); refreshGrid(); refreshRings(); refreshRecipes(); input.release();
 }
-function closePanel() { G.anet = []; gridReturn(); $("inv").classList.add("hidden"); heldIdx = -1; cont = null; }
+function closePanel() { G.csel = null; G.anet = []; gridReturn(); $("inv").classList.add("hidden"); heldIdx = -1; cont = null; }
 const panelOpen = () => !$("inv").classList.contains("hidden");
 
 // ---------- игрок ----------
@@ -1222,7 +1239,7 @@ function stepPlayer(dt) {
   for (let i = 0; i < sub; i++) { mv("x", P.vx * dt / sub); mv("z", P.vz * dt / sub); mv("y", P.vy * dt / sub); }
   if (P.fly && P.ground) P.fly = false;
   if (P.impact < -14 && !P.fly && !P.inW && !hasRing(I.RING_FEATHER)) damagePlayer(Math.floor(-P.impact - 13));
-  if (P.ground && !P.fly && Math.hypot(P.vx, P.vz) > 1) { P.stepT = (P.stepT || 0) + dt * Math.hypot(P.vx, P.vz); if (P.stepT > 2.4) { P.stepT = 0; sfx("step"); } }
+  if (P.ground && !P.fly && Math.hypot(P.vx, P.vz) > 1) { P.stepT = (P.stepT || 0) + dt * Math.hypot(P.vx, P.vz); if (P.stepT > 2.4) { P.stepT = 0; sfx(stepKind()); } }
   if (P.y < -20) { P.y = 60; P.vy = 0; }
 }
 function look() { const cp = Math.cos(P.pitch); return [-Math.sin(P.yaw) * cp, Math.sin(P.pitch), -Math.cos(P.yaw) * cp]; }
@@ -1261,12 +1278,48 @@ function sfxTone(dur, f0, f1, vol, type) {
   const a = audio(); if (!a || G.mute) return; const o = a.createOscillator(); o.type = type || "sine"; o.frequency.setValueAtTime(f0, a.currentTime); o.frequency.exponentialRampToValueAtTime(Math.max(30, f1), a.currentTime + dur);
   const g = a.createGain(); g.gain.setValueAtTime(vol, a.currentTime); g.gain.exponentialRampToValueAtTime(.001, a.currentTime + dur); o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime + dur + .02);
 }
+// ---------- звуки: процедурные, в духе Thaumcraft (Разработчик: @yfeeeee) ----------
+const T_ = (d, f0, f1, v, ty, at) => setTimeout(() => sfxTone(d, f0, f1, v, ty), at || 0), N_ = (d, f0, f1, v, ty, at) => setTimeout(() => sfxNoise(d, f0, f1, v, ty), at || 0);
+const sfxLast = {}; const sfxGate = (k, ms) => { const n = performance.now(); if (n - (sfxLast[k] || 0) < ms) return false; sfxLast[k] = n; return true; };
+function stepKind() { const b = blockAt(Math.floor(P.x), Math.floor(P.y - .1), Math.floor(P.z)); return b === B.SAND || b === B.SNOW ? "step_sand" : b === B.STONE || b === B.COBBLE || b === B.STONEBRICK || (b >= B.CHEST && b <= B.BATTERY) || b === B.PRESS || b === B.MILL ? "step_stone" : b === B.PLANKS || b === B.LOG || b === B.TABLE ? "step_wood" : b === B.LEAVES ? "step_leaf" : "step"; }
+function mobVoice(t) {
+  if (!sfxGate("mv" + t, 350)) return;
+  if (t === "zombie") { sfxTone(.5, 120, 65, .22, "sawtooth"); T_(.35, 95, 60, .18, "sawtooth", 160); }
+  else if (t === "pig") { sfxTone(.12, 380, 240, .2, "square"); T_(.14, 330, 200, .18, "square", 130); }
+  else if (t === "sheep") { sfxTone(.45, 430, 330, .18, "sawtooth"); T_(.3, 360, 300, .14, "sawtooth", 200); }
+  else if (t === "skeleton") { for (let i = 0; i < 4; i++) N_(.04, 3000 + i * 400, 1800, .22, "bandpass", i * 55); }
+  else if (t === "golem") { sfxTone(.3, 90, 45, .35, "sine"); N_(.12, 300, 100, .3, "lowpass", 0); }
+}
 function sfx(k) {
   if (k === "break") sfxNoise(.13, 1100, 300, .35); else if (k === "place") { sfxNoise(.08, 600, 250, .3, "lowpass"); sfxTone(.09, 170, 90, .25); }
   else if (k === "step") sfxNoise(.05, 500, 250, .07, "lowpass"); else if (k === "hurt") sfxTone(.28, 240, 80, .25, "square");
+  else if (k === "step_sand") sfxNoise(.08, 2200, 1200, .05, "highpass"); else if (k === "step_stone") { sfxNoise(.04, 1800, 900, .1, "bandpass"); sfxTone(.04, 220, 160, .05); }
+  else if (k === "step_wood") { sfxTone(.07, 260, 150, .11); sfxNoise(.04, 900, 400, .05, "lowpass"); } else if (k === "step_leaf") sfxNoise(.09, 3000, 1500, .06, "highpass");
   else if (k === "hit") sfxNoise(.09, 1600, 700, .3); else if (k === "eat") { sfxNoise(.06, 900, 500, .3); setTimeout(() => sfxNoise(.06, 900, 500, .3), 120); setTimeout(() => sfxNoise(.06, 900, 500, .3), 240); }
   else if (k === "pop") sfxTone(.12, 500, 900, .2); else if (k === "die") sfxTone(.6, 300, 40, .3, "sawtooth"); else if (k === "splash") sfxNoise(.2, 1800, 500, .25);
+  else if (k === "click") { if (sfxGate("click", 40)) sfxTone(.04, 900, 650, .07, "triangle"); }
+  else if (k === "page") { sfxNoise(.18, 4000, 1500, .12, "highpass"); N_(.12, 3500, 1200, .09, "highpass", 90); }
+  else if (k === "pickup") { if (sfxGate("pickup", 70)) { sfxTone(.07, 700, 1100, .09, "triangle"); T_(.08, 1050, 1500, .07, "triangle", 55); } }
+  else if (k === "craft") { sfxTone(.05, 800, 600, .12, "square"); T_(.12, 600, 1200, .1, "triangle", 60); N_(.06, 1500, 800, .1, "bandpass", 30); }
+  else if (k === "zap") { sfxTone(.22, 1400, 160, .16, "sawtooth"); sfxNoise(.18, 5000, 600, .14, "bandpass"); T_(.15, 700, 90, .1, "square", 40); }
+  else if (k === "gather") { if (sfxGate("gather", 120)) { [523, 659, 784, 1046].forEach((f, i) => T_(.28, f, f * 1.01, .09, "sine", i * 55)); N_(.3, 6000, 3000, .035, "highpass", 0); } }
+  else if (k === "scribe") { for (let i = 0; i < 12; i++) N_(.03 + Math.random() * .04, 2600 + Math.random() * 2200, 1800, .13, "bandpass", i * (85 + Math.random() * 40)); }
+  else if (k === "research") { [392, 494, 587, 784, 988, 1175].forEach((f, i) => { T_(.9, f, f, .1, "sine", i * 120); T_(.7, f * 2, f * 2, .03, "triangle", i * 120 + 20); }); N_(1.1, 7000, 2500, .04, "highpass", 500); }
+  else if (k === "bubble") { for (let i = 0; i < 7; i++) T_(.09, 180 + Math.random() * 260, 420 + Math.random() * 300, .1, "sine", i * (70 + Math.random() * 90)); N_(.5, 700, 300, .05, "lowpass", 0); }
+  else if (k === "infuse") { sfxTone(1.6, 220, 1320, .1, "sine"); T_(1.6, 224, 1330, .07, "sine", 0); T_(1.2, 110, 440, .08, "triangle", 150); N_(1.5, 2000, 7000, .04, "bandpass", 0); }
+  else if (k === "chime") { [880, 1109, 1319].forEach((f, i) => T_(.6, f, f, .09, "sine", i * 90)); }
+  else if (k === "denied") { sfxTone(.18, 200, 130, .13, "square"); }
 }
+let AMB = null, musT = 25;
+function ambTick(dt) {
+  const a = audio(); if (!a) return;
+  if (!AMB) { const g = a.createGain(); g.gain.value = 0; g.connect(a.destination); const o1 = a.createOscillator(), o2 = a.createOscillator(), l = a.createOscillator(), lg = a.createGain(); o1.type = o2.type = "sine"; o1.frequency.value = 98; o2.frequency.value = 148.3; l.frequency.value = .35; lg.gain.value = .02; l.connect(lg); lg.connect(g.gain); o1.connect(g); o2.connect(g); o1.start(); o2.start(); l.start(); AMB = { g }; }
+  let best = 1e9; for (const n of NODES.values()) { if (!n) continue; const d = Math.hypot(n.x - P.x, n.y - P.y, n.z - P.z); if (d < best) best = d; }
+  AMB.g.gain.setTargetAtTime(G.mute || best > 28 ? 0 : (1 - best / 28) * .07, a.currentTime, .4);
+  musT -= dt; if (musT <= 0) { musT = 50 + Math.random() * 70; if (!G.mute) { const sc = [220, 261.6, 293.7, 329.6, 392, 440, 523.3], root = sc[Math.floor(Math.random() * 3)]; [1, 1.5, 2, 2.5, 3].slice(0, 3 + Math.floor(Math.random() * 3)).forEach((r, i) => { const o = a.createOscillator(), g = a.createGain(); o.type = "sine"; o.frequency.value = root * r * (i % 2 ? 1 : .5); g.gain.setValueAtTime(0, a.currentTime + i * 1.4); g.gain.linearRampToValueAtTime(.025, a.currentTime + i * 1.4 + 2.5); g.gain.linearRampToValueAtTime(0, a.currentTime + i * 1.4 + 9); o.connect(g); g.connect(a.destination); o.start(a.currentTime + i * 1.4); o.stop(a.currentTime + i * 1.4 + 9.2); }); } }
+  mobSndT = (typeof mobSndT === "number" ? mobSndT : 6) - dt; if (mobSndT <= 0) { mobSndT = 7 + Math.random() * 12; let m = null, bd = 14; for (const q of mobs) { const d = Math.hypot(q.x - P.x, q.z - P.z); if (d < bd && q.type !== "golem" || (q.type === "golem" && d < 6 && Math.random() < .3)) { bd = d; m = q; } } if (m) mobVoice(m.type); }
+}
+let mobSndT = 6;
 // ---------- ввод ----------
 const input = {
   move: { f: 0, s: 0 }, jump: false, sneak: false, mining: false, keys: {}, locked: false,
@@ -1303,8 +1356,8 @@ const bj = $("bJump");
 bj.addEventListener("pointerdown", (e) => { e.stopPropagation(); input.jump = true; const n = performance.now(); if (n - jumpTap < 320) { toggleFly(); } jumpTap = n; bj.setPointerCapture(e.pointerId); });
 bj.addEventListener("pointerup", () => (input.jump = false)); bj.addEventListener("pointercancel", () => (input.jump = false));
 $("bFly").addEventListener("pointerdown", (e) => { e.stopPropagation(); toggleFly(); });
-$("bInv").addEventListener("pointerdown", (e) => { e.stopPropagation(); openPanel("inv"); });
-$("bMenu").addEventListener("pointerdown", (e) => { e.stopPropagation(); openPause(); });
+$("bInv").addEventListener("pointerdown", (e) => e.stopPropagation()); $("bInv").addEventListener("click", (e) => { e.stopPropagation(); openPanel("inv"); sfx("page"); });
+$("bMenu").addEventListener("pointerdown", (e) => e.stopPropagation()); $("bMenu").addEventListener("click", (e) => { e.stopPropagation(); openPause(); });
 $("invClose").addEventListener("click", closePanel);
 $("tItems").addEventListener("click", () => { G.tab = "items"; refreshRecipes(); }); $("tCraft").addEventListener("click", () => { G.tab = "craft"; refreshRecipes(); });
 $("tAsp").addEventListener("click", () => { for (const k of ASPECT_KEYS) asp[k] += 50; refreshAsp(); });
@@ -1376,6 +1429,7 @@ function useBlock() {
     if (mobs.filter((q) => q.type === "golem").length >= 3) { toast("Не больше 3 големов"); return; }
     const l = look(), gx = P.x + l[0] * 2, gz = P.z + l[2] * 2, gy = groundY(gx, gz); mobs.push({ id: ++mobSeq, type: "golem", x: gx, y: (gy === null ? P.y : gy) + .05, z: gz, vy: 0, kx: 0, kz: 0, yaw: 0, hp: 60, hurt: 0, atk: .6, wt: 0, wdir: null }); removeOne(selSlot); sfx("pop"); fxBurst(gx, P.y + 1, gz, 16, [.7, .75, .85], 4, .7, .09); toast("Голем призван! Он следует за тобой и сражается"); return;
   }
+  if (hw === I.BOOK) { openPanel("book"); sfx("page"); return; }
   if (hw === I.THAUMO) {
     const tn = nodeRay(14); if (tn) { const n = tn.n; toast("Узел (" + NODE_TYPES[n.type] + "): " + Object.keys(n.asp).map((q) => ASPECTS[q][0] + " " + n.asp[q] + "/" + n.max[q]).join(", ")); sfx("pop"); return; }
     const tm = mobRay(8); if (tm) { toast(tm.m.type === "skeleton" ? "Скелет: Пердитио 3, Ордо 2" : tm.m.type === "golem" ? "Голем: Терра 20, Ордо 20" : tm.m.type === "sheep" ? "Овца: Аэр 2" : tm.m.type === "pig" ? "Свинья: Аква 1" : "Зомби: Пердитио 3, Игнис 1"); sfx("pop"); return; }
@@ -1384,9 +1438,9 @@ function useBlock() {
   if (isWand(hw)) { const nh = nodeRay(18); if (nh) {
       if (performance.now() - (G.sipT || 0) < 180) return; G.sipT = performance.now(); const n = nh.n, big = hw === I.WAND2 ? 2 : 1; let got = [];
       for (const q in n.asp) { const take = Math.min(n.asp[q], 3 * big, Math.max(0, aspCap() - asp[q])); if (take > 0) { n.asp[q] -= take; asp[q] += take; got.push(ASPECTS[q][0] + " +" + take); fxBurst(n.x + (P.x - n.x) * .2, n.y + (P.y + 1 - n.y) * .2, n.z + (P.z - n.z) * .2, 4, hex2rgb(ASPECTS[q][1]), 3, .6, .09); } }
-      refreshAsp(); if (got.length) { sfx("pop"); toast("Узел: " + got.join(", ")); } else toast(nodeTotal(n) > 0 ? "Запас аспектов полон (улучши стержень жезла)" : "Узел истощён — восстановится со временем"); G.dirtySave = true; return;
+      refreshAsp(); if (got.length) { sfx("gather"); toast("Узел: " + got.join(", ")); } else toast(nodeTotal(n) > 0 ? "Запас аспектов полон (улучши стержень жезла)" : "Узел истощён — восстановится со временем"); G.dirtySave = true; return;
     }
-    const bm = mobRay(16); if (bm && performance.now() - (G.boltT || 0) > 450) { if (G.creative || asp.ignis >= 2) { G.boltT = performance.now(); if (!G.creative) { asp.ignis -= 2; refreshAsp(); } attackMob(bm.m, hw === I.WAND2 ? 9 : 5, P.x, P.z); { const l = look(), dd = bm.t; fxBolt(P.x + l[0] * .6, P.y + EYE - .25 + l[1] * .6, P.z + l[2] * .6, P.x + l[0] * dd, P.y + EYE + l[1] * dd, P.z + l[2] * dd); } sfx("hit"); toast("Огненный заряд! −2 Игнис"); } else toast("Нужно 2 Игнис (аспекты огня)"); return; } }
+    const bm = mobRay(16); if (bm && performance.now() - (G.boltT || 0) > 450) { if (G.creative || asp.ignis >= 2) { G.boltT = performance.now(); sfx("zap"); if (!G.creative) { asp.ignis -= 2; refreshAsp(); } attackMob(bm.m, hw === I.WAND2 ? 9 : 5, P.x, P.z); { const l = look(), dd = bm.t; fxBolt(P.x + l[0] * .6, P.y + EYE - .25 + l[1] * .6, P.z + l[2] * .6, P.x + l[0] * dd, P.y + EYE + l[1] * dd, P.z + l[2] * dd); } sfx("hit"); toast("Огненный заряд! −2 Игнис"); } else toast("Нужно 2 Игнис (аспекты огня)"); return; } }
   if ((isWand(hw)) && !mobRay(16) && !raycast(16)) {
     if (G.creative) { toast("Исцеление работает в выживании"); return; }
     if (G.hp >= 20) { toast("Здоровье полное"); return; }
@@ -1406,6 +1460,7 @@ function useBlock() {
   if (hit.id === B.BED) { G.spawn = { x: hit.x + .5, z: hit.z + .5 }; G.dirtySave = true; sfx("pop");
     if ((G.sun || 0) < .35) { if (NET.ws && NET.ws.readyState === 1) { NET.ws.send(JSON.stringify({ t: "sleep" })); toast("Точка сохранена. Ждём, пока уснут остальные…"); } else { G.time = .02; toast("Ты поспал. Утро!"); } } else toast("Точка возрождения сохранена");
     return; }
+  if (hit.id === B.RESTABLE) { G.anet = aspJars(hit.x, hit.y, hit.z); openResTable(); return; }
   if (hit.id === B.ARCANE) { G.anet = aspJars(hit.x, hit.y, hit.z); openPanel("arcane"); return; }
   if (hit.id === B.PEDESTAL || hit.id === B.INFUSION) {
     const k = hit.x + "," + hit.y + "," + hit.z; if (!TE.has(k)) TE.set(k, newTE(hit.id, k)); const te = TE.get(k), hf = heldId();
@@ -1567,6 +1622,75 @@ function renderCast(box, te) {
 }
 setInterval(() => { if (panelOpen() && ["smelt", "cast", "tank"].includes(panelMode) && cont) refreshRecipes(); }, 1200);
 
+// ---------- описания, стол исследований, Таумономикон ----------
+Object.assign(I, { SCRIBE: 246, BOOK: 247 }); Object.assign(B, { RESTABLE: 62 });
+const DESC = {
+  [B.CRUCIBLE]: "Тигель (Thaumcraft). Положи предмет и нажми «Растворить» — он распадётся на аспекты. Аспекты уходят в банки, если рядом есть аспектные трубы.",
+  [B.ARCANE]: "Арканный стол. Создаёт магические предметы за аспекты. Берёт аспекты из твоего запаса и из соединённых трубами банок. Здесь же можно изучать исследования.",
+  [B.INFUSION]: "Инфузионный алтарь — центр рунической матрицы. Положи предмет на алтарь, ингредиенты на пьедесталы вокруг (радиус 5) и нажми на алтарь жезлом.",
+  [B.PEDESTAL]: "Пьедестал. Ставь вокруг инфузионного алтаря и клади на него ингредиенты для инфузии.",
+  [B.JAR]: "Банка для аспектов (до 100 каждого). Соединяется аспектными трубами с тиглем и столами.",
+  [B.ASPIPE]: "Аспектная труба. Соединяет тигель, банки и столы в сеть.",
+  [B.RESTABLE]: "Стол исследований. Нужны письменные принадлежности в инвентаре. Изучай новые знания за аспекты — они открывают новые предметы и блоки.",
+  [I.BOOK]: "Таумономикон — книга знаний. Нажми «использовать»: основы магии, аспекты и список исследований.",
+  [I.SCRIBE]: "Письменные принадлежности (перо и чернила). Нужны для работы за столом исследований.",
+  [I.THAUMO]: "Таумометр. Нацель и нажми «использовать» — покажет аспекты блока, моба или узла ауры.",
+  [I.GOLEM]: "Сердце голема. Нажми «использовать» — призовёшь железного стража (до 3).",
+  [B.SMELTER]: "Электропечь. Плавит руду и пыль в слитки. Питается от энергосети.", [B.MACERATOR]: "Дробилка. Руда → 2 пыли. Питается от энергосети.",
+  [B.PRESS]: "Механический пресс. Слитки → пластины. Питается от энергосети.", [B.MILL]: "Жернова. Руда → 2 пыли, медленно и экономно.",
+  [B.GENERATOR]: "Генератор. Сжигает топливо и даёт 20 EU/с.", [B.SOLAR]: "Солнечная панель. До 6 EU/с днём под открытым небом.", [B.BATTERY]: "Батарея. Хранит энергию сети.", [B.CABLE]: "Кабель. Соединяет машины в энергосеть.",
+  [B.WHEEL]: "Водяное колесо. Рядом должна быть вода: 12 EU/с.", [B.WINDMILL]: "Ветряк. До 12 EU/с, чем выше — тем лучше. Нужно открытое небо.",
+  [B.SMELTERY]: "Плавильня. Плавит руду в жидкий металл. Медь:олово 3:1 → бронза. Топливо: уголь, дерево.", [B.TANK]: "Резервуар. Хранит жидкий металл и воду (до 16000).", [B.CAST]: "Литейный стол. Отливает слитки и головки инструментов по формам.",
+  [B.BELT]: "Конвейерная лента. Несёт игрока по направлению стрелок (направление — по взгляду при установке).",
+  [B.TERMINAL]: "ME-терминал. Доступ ко всему хранилищу сети, автокрафт.", [B.DRIVE]: "ME-накопитель. Расширяет хранилище сети.", [B.MECABLE]: "ME-кабель. Соединяет терминал, сундуки и накопители.", [B.QBRIDGE]: "Квантовый мост. Связывает ME-сети на любом расстоянии.",
+  [B.CHEST]: "Сундук на 27 ячеек.", [B.CHEST_IRON]: "Железный сундук на 54 ячейки.", [B.CHEST_GOLD]: "Золотой сундук на 81 ячейку.", [B.CHEST_DIAMOND]: "Алмазный сундук на 108 ячеек.",
+  [I.CH_UPG1]: "Улучшение сундука: обычный → железный. Нажми по сундуку.", [I.CH_UPG2]: "Улучшение сундука: железный → золотой.", [I.CH_UPG3]: "Улучшение сундука: золотой → алмазный.",
+  [I.BUCKET]: "Ведро. Стоя в воде — наполни; вылей в резервуар.", [I.BUCKET_W]: "Ведро воды. Нажми на резервуар, чтобы вылить.", [I.BOW]: "Лук. «Использовать» — выстрел, нужны стрелы.",
+};
+function describe(id) {
+  let t = DESC[id] || ""; if (!t) { if (isWand(id)) t = "Жезл. Нажми по узлу ауры — вытянешь аспекты, по мобу — огненный заряд, в воздух — исцеление."; else if (TOOL[id]) t = "Инструмент" + (TOOL[id].tier ? ", уровень " + TOOL[id].tier : "") + ". Изнашивается."; else if (BD[id]) t = "Блок."; else if (FOOD[id]) t = "Еда."; }
+  const a = aspOf(id); if (a) t += (t ? " " : "") + "Аспекты: " + Object.keys(a).map((k) => ASPECTS[k][0] + " " + a[k]).join(", ") + ".";
+  return t;
+}
+function showInfo(id, n, d) { let m = ""; if (d && durMax(id)) m = ` · прочность ${durMax(id) - d}/${durMax(id)}`; $("hint").innerHTML = `<b style="color:var(--gold)">${iname(id)}</b>${n > 1 ? " ×" + n : ""}${m}<br>${describe(id)}`; }
+function openResTable() { openPanel("restable"); sfx("page"); }
+const RES_UNLOCKS = (k) => Object.keys(RES_OF).filter((o) => RES_OF[o] === k).map((o) => iname(+o));
+function hasScribe() { return G.creative || countItem(I.SCRIBE) > 0; }
+function startResearch(r, row) {
+  if (G.resBusy) return; if (!hasScribe()) { $("hint").textContent = "Нужны письменные принадлежности"; sfx("denied"); return; }
+  G.resBusy = true; sfx("scribe"); const bar = document.createElement("div"); bar.style.cssText = "height:6px;border-radius:4px;background:#ffffff22;margin-top:6px;overflow:hidden"; bar.innerHTML = '<i style="display:block;height:100%;width:0;background:linear-gradient(90deg,#c9a0ff,#63c6ff);transition:width 2.4s linear"></i>'; row.appendChild(bar); setTimeout(() => (bar.firstChild.style.width = "100%"), 30);
+  $("hint").textContent = "Записываю наблюдения: " + r.n + "…";
+  setTimeout(() => { G.resBusy = false; if (panelMode !== "restable") return; for (const k in r.c) spendAsp(k, r.c[k]); G.res[r.k] = 1; G.dirtySave = true; sfx("research"); refreshAsp(); refreshRecipes(); $("hint").innerHTML = `<b style="color:#c9a0ff">Исследование завершено: ${r.n}</b><br>Открыто: ${RES_UNLOCKS(r.k).join(", ") || "—"}`; }, 2600);
+}
+function renderResTable(box) {
+  if (panelMode === "book") return renderBook(box);
+  note(box, hasScribe() ? "✎ Письменные принадлежности есть. Выбери исследование." : "<b style='color:#ff9a6a'>Нужны письменные принадлежности</b> (палка + уголь + шерсть на верстаке).");
+  for (const r of RESEARCH) {
+    const done = !!G.res[r.k] || G.creative, reqOk = r.req.every((q) => G.res[q] || G.creative);
+    const row = document.createElement("div"); row.className = "rcp" + (reqOk ? "" : " lock"); row.style.flexWrap = "wrap";
+    const mid = document.createElement("div"); mid.className = "mid";
+    mid.innerHTML = `<b>${r.n}${done ? " ✓" : ""}</b><div style="color:var(--dim);font-size:11px;margin:2px 0">${r.d}${reqOk ? "" : " · сначала: " + r.req.map(resName).join(", ")}</div><div style="color:#c9a0ff;font-size:11px">Откроет: ${RES_UNLOCKS(r.k).join(", ") || "—"}</div>`;
+    const chips = document.createElement("div"); chips.className = "chips";
+    if (!done) for (const k in r.c) { const c = document.createElement("span"); c.className = "chip " + (AV(k) >= r.c[k] ? "ok" : "no"); c.textContent = `${ASPECTS[k][0]} ${AV(k)}/${r.c[k]}`; chips.appendChild(c); }
+    mid.appendChild(chips); row.appendChild(mid);
+    const can = !done && reqOk && Object.keys(r.c).every((k) => AV(k) >= r.c[k]);
+    const b = document.createElement("button"); b.className = "craft"; b.textContent = done ? "Изучено" : "Изучить"; b.disabled = !can || !!G.resBusy; b.addEventListener("click", () => startResearch(r, row)); row.appendChild(b); box.appendChild(row);
+  }
+}
+function renderBook(box) {
+  const tabs = [["base", "Основы"], ["asp", "Аспекты"], ["res", "Знания"]], row = document.createElement("div"); row.style.cssText = "display:flex;gap:6px;margin-bottom:8px";
+  G.bookTab = G.bookTab || "base";
+  for (const [k, n] of tabs) { const b = document.createElement("button"); b.className = "craft"; b.style.flex = "1"; b.style.opacity = G.bookTab === k ? 1 : .55; b.textContent = n; b.addEventListener("click", () => { G.bookTab = k; sfx("page"); refreshRecipes(); }); row.appendChild(b); }
+  box.appendChild(row);
+  if (G.bookTab === "base") note(box, "<b style='color:var(--gold)'>Таумономикон</b><br>1. Найди <b>узлы ауры</b> — светящиеся сгустки в мире. Жезлом (наконечник + стержень на верстаке) вытягивай из них аспекты.<br>2. Аспекты есть у любых блоков: брось предмет в <b>Тигель</b> — получишь аспекты.<br>3. На <b>Столе исследований</b> трать аспекты на знания — они открывают рецепты.<br>4. <b>Арканный стол</b> создаёт магические предметы, <b>Инфузионный алтарь</b> с пьедесталами — самые сильные (рунический матрикс).<br>5. Лучше наконечник и стержень — больше ёмкость аспектов и сила жезла.", "line-height:1.5;font-size:14px;color:var(--txt)");
+  else if (G.bookTab === "asp") { let h = ""; const src = { ignis: "уголь, лава, алмаз", aqua: "вода, олово, песок", terra: "земля, камень, железо", aer: "золото, шерсть, листва", ordo: "медь, кристаллы", perditio: "скелеты, гравий" }; for (const k of ASPECT_KEYS) h += `<div style="margin:6px 0"><b style="color:${ASPECTS[k][1]}">${ASPECTS[k][0]}</b> — у тебя ${asp[k]}<br><span style="color:var(--dim);font-size:12px">Источники: ${src[k] || "разные блоки"}</span></div>`; note(box, h, "font-size:14px;color:var(--txt)"); }
+  else for (const r of RESEARCH) { const done = !!G.res[r.k] || G.creative; note(box, `<b style="color:${done ? "#7be07b" : "var(--txt)"}">${r.n}${done ? " ✓" : ""}</b><br>${r.d}<br><span style="color:#c9a0ff;font-size:12px">Откроет: ${RES_UNLOCKS(r.k).join(", ") || "—"}${r.req.length ? " · нужно: " + r.req.map(resName).join(", ") : ""}</span>`, "font-size:13px;color:var(--txt);padding:6px 8px;border-radius:10px;background:#ffffff0a"); }
+}
+def(B.RESTABLE, "Стол исследований", ["rt_top", "rt_side", "rt_side"], 3, { tool: 2 });
+Object.assign(ITEMNAME, { [I.SCRIBE]: "Письменные принадлежности", [I.BOOK]: "Таумономикон" });
+RECIPES.push(R(I.SCRIBE, 1, { [I.STICK]: 1, [I.COAL]: 1, [B.WOOL]: 1 }, "table"), R(I.BOOK, 1, { [B.PLANKS]: 3, [I.CRYSTAL]: 1, [B.WOOL]: 1 }, "table"), R(B.RESTABLE, 1, { [B.PLANKS]: 6, [I.STICK]: 2, [B.WOOL]: 2 }, "table"));
+document.addEventListener("click", (e) => { if (performance.now() - (G.openT || 0) < 450 && e.target.closest && e.target.closest("#inv")) { e.stopImmediatePropagation(); e.preventDefault(); return; } if (e.target.closest && e.target.closest(".big,.craft,.slot,.btn,.x,#chips button")) sfx("click"); }, true);
+
 let teAcc = 0;
 function teAdvance(dt) { teAcc += dt; let it = 0; while (teAcc >= .1 && it++ < 3) { teAcc -= .1; teTick(.1); } if (teAcc > .5) teAcc = 0; }
 function teTick(dt) {
@@ -1631,8 +1755,8 @@ function ringTap(i) {
 // ---------- панели механизмов ----------
 let cont = null;
 function slotBtn(s, fn, extra) {
-  const d = document.createElement("div"); d.className = "slot"; d.style.cssText = "width:100%;height:auto;aspect-ratio:1;touch-action:manipulation" + (extra || "");
-  if (s) { const c = iconCanvasFor(s.id); c.style.cssText = "width:78%;height:78%"; d.appendChild(c); if (s.n > 1) { const n = document.createElement("span"); n.className = "n"; n.textContent = s.n; d.appendChild(n); } durBar(d, s); }
+  const d = document.createElement("div"); d.className = "slot" + (s && G.csel && G.csel.te.slots[G.csel.i] === s ? " held" : ""); d.style.cssText = "width:100%;height:auto;aspect-ratio:1;touch-action:manipulation" + (extra || "");
+  if (s) { const c = iconCanvasFor(s.id); c.style.cssText = "width:78%;height:78%"; d.appendChild(c); if (s.n > 1) { const n = document.createElement("span"); n.className = "n"; n.textContent = s.n; d.appendChild(n); } durBar(d, s); d.title = iname(s.id); }
   d.addEventListener("click", fn); return d;
 }
 function note(box, html, style) { const e = document.createElement("div"); e.style.cssText = "color:var(--dim);font-size:13px;margin:4px 0 8px;" + (style || ""); e.innerHTML = html; box.appendChild(e); return e; }
@@ -1659,7 +1783,7 @@ function renderSpecial(box) {
     const g = document.createElement("div"); g.style.cssText = "display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:210px"; g.appendChild(slotBtn(te.slots[0], () => tapCont(0))); box.appendChild(g);
     bigBtn(box, "Растворить всё из ячейки", () => {
       const s = te.slots[0]; if (!s) return; const a = aspOf(s.id); if (!a) { $("hint").textContent = "Из этого аспектов не извлечь"; return; }
-      let txt = []; for (const k in a) { depositAsp(k, a[k] * s.n); txt.push(ASPECTS[k][0] + " +" + a[k] * s.n); } te.slots[0] = null; syncTE(te); sfx("pop"); refreshAsp(); refreshUI(); $("hint").textContent = txt.join(", ");
+      let txt = []; for (const k in a) { depositAsp(k, a[k] * s.n); txt.push(ASPECTS[k][0] + " +" + a[k] * s.n); } te.slots[0] = null; syncTE(te); sfx("bubble"); refreshAsp(); refreshUI(); $("hint").textContent = txt.join(", ");
     }); return;
   }
   if (D.energy) {
@@ -1688,7 +1812,12 @@ function tapCont(i) {
     else if (cs.id === hs.id && cs.n < maxStack(cs.id)) { const t = Math.min(maxStack(cs.id) - cs.n, hs.n); cs.n += t; hs.n -= t; if (hs.n <= 0) inv[heldIdx] = null; }
     else { $("hint").textContent = "Ячейка занята"; return; }
     heldIdx = -1;
-  } else if (cs) { const left = addItem(cs.id, cs.n, cs.d); if (left > 0) cs.n = left; else te.slots[i] = null; }
+  } else if (G.csel && G.csel.te === te) {
+    const a = te.slots[G.csel.i], from = G.csel.i;
+    if (from === i) { if (cs) { const left = addItem(cs.id, cs.n, cs.d); if (left > 0) cs.n = left; else te.slots[i] = null; } }
+    else if (a) { if (D.accept && !D.accept(i, a.id)) { $("hint").textContent = "Сюда это положить нельзя"; return; } if (!cs) { te.slots[i] = a; te.slots[from] = null; } else if (cs.id === a.id && maxStack(cs.id) > 1) { const t = Math.min(maxStack(cs.id) - cs.n, a.n); cs.n += t; a.n -= t; if (a.n <= 0) te.slots[from] = null; } else if (!D.accept || D.accept(from, cs.id)) { te.slots[i] = a; te.slots[from] = cs; } else { $("hint").textContent = "Ячейки не обмениваются"; return; } }
+    G.csel = null;
+  } else if (cs) { G.csel = { te, i }; showInfo(cs.id, cs.n, cs.d); }
   refreshUI(); G.dirtySave = true; syncTE(te);
 }
 const CELL_CAP = 2048;
@@ -1821,7 +1950,7 @@ function giveDrop(type) { if (type === "sheep") { addItem(B.WOOL, 1 + Math.floor
 function attackMob(m, dmg, fx, fz, killer) {
   if (m.remote) { sfx("hit"); m.hurt = .35; if (NET.ws && NET.ws.readyState === 1) NET.ws.send(JSON.stringify({ t: "hit", o: m.o, id: m.id, dmg, ax: P.x, az: P.z })); return; }
   const sx = fx === undefined ? P.x : fx, sz = fz === undefined ? P.z : fz;
-  m.hp -= dmg; m.hurt = .35; const dx = m.x - sx, dz = m.z - sz, l = Math.hypot(dx, dz) || 1; m.kx = dx / l * 7; m.kz = dz / l * 7; m.vy = 5; sfx("hit");
+  m.hp -= dmg; m.hurt = .35; const dx = m.x - sx, dz = m.z - sz, l = Math.hypot(dx, dz) || 1; m.kx = dx / l * 7; m.kz = dz / l * 7; m.vy = 5; sfx("hit"); mobVoice(m.type);
   if (m.hp <= 0) {
     mobs.splice(mobs.indexOf(m), 1);
     if (killer && NET.ws) NET.ws.send(JSON.stringify({ t: "drop", to: killer, type: m.type })); else giveDrop(m.type);
@@ -2110,7 +2239,7 @@ function frame(now) {
   manageChunks(3);
   G.time = (G.time + dt / 600) % 1;
   const sun = clamp(Math.sin(G.time * 2 * Math.PI) * 1.6 + .25, 0, 1);
-  G.sun = sun; if (!paused) { survivalTick(dt, sun); if (!NET.ws) teAdvance(dt); if (hasRing(I.RING_REGEN) && !G.creative && !G.dead) { G.ringT = (G.ringT || 0) + dt; if (G.ringT > 4) { G.ringT = 0; if (G.hp < 20) { G.hp++; updateStats(); } } } }
+  G.sun = sun; if (!paused) { survivalTick(dt, sun); ambTick(dt); if (!NET.ws) teAdvance(dt); if (hasRing(I.RING_REGEN) && !G.creative && !G.dead) { G.ringT = (G.ringT || 0) + dt; if (G.ringT > 4) { G.ringT = 0; if (G.hp < 20) { G.hp++; updateStats(); } } } }
   const day = [.55, .78, .96], night = [.03, .04, .1];
   for (let i = 0; i < 3; i++) sky[i] = lerp(night[i], day[i], sun);
   const nv = hasRing(I.RING_VISION) || G.buf.night > 0, light = nv ? Math.max(.38 + .62 * sun, .95) : .38 + .62 * sun;
@@ -2237,7 +2366,7 @@ addEventListener("visibilitychange", () => { if (document.hidden && G.running) s
 addEventListener("beforeunload", () => { if (G.running) saveGame(); });
 if (!loadSave()) $("bPlay").textContent = "▶ Играть (новый мир)";
 requestAnimationFrame(frame);
-window.__g = { TILE, atlasCanvas, BD, genTile, itemIcon, BELTV, castDo, TOOL, wear, durMax, MATRIX, matrixStart, matrixMatch, matrixTick, get mx() { return G.mx; }, NODES, nodeAt, nodeRay, ARR, remoteMobs, setCont: (k) => { cont = { key: k }; }, TE, newTE, teTick, TEDEF, G2: G, mobs, trySpawn, damagePlayer, die, updateStats, sfx, NET, asp, RECIPES, G, P, inv, input, B, I, setBlock, blockAt, startWorld, openPanel, closePanel, useBlock, raycast, addItem, get sel() { return selSlot; }, look, aspJars, resOk, AV, spendAsp, jarAdd, RESEARCH, doCraft, canCraft, refreshRecipes };
+window.__g = { tapCont, slotTap, startResearch, openResTable, RESEARCH, TILE, atlasCanvas, BD, genTile, itemIcon, BELTV, castDo, TOOL, wear, durMax, MATRIX, matrixStart, matrixMatch, matrixTick, get mx() { return G.mx; }, NODES, nodeAt, nodeRay, ARR, remoteMobs, setCont: (k) => { cont = { key: k }; }, TE, newTE, teTick, TEDEF, G2: G, mobs, trySpawn, damagePlayer, die, updateStats, sfx, NET, asp, RECIPES, G, P, inv, input, B, I, setBlock, blockAt, startWorld, openPanel, closePanel, useBlock, raycast, addItem, get sel() { return selSlot; }, look, aspJars, resOk, AV, spendAsp, jarAdd, RESEARCH, doCraft, canCraft, refreshRecipes };
 </script>
 </body>
 </html>
