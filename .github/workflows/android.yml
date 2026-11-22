@@ -3,6 +3,9 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
+    paths: ['mobile/**', '.github/workflows/android.yml']
+permissions:
+  contents: write
 defaults:
   run:
     working-directory: mobile
@@ -24,6 +27,8 @@ jobs:
           sed -i 's/<activity /<activity android:screenOrientation="sensorLandscape" /' $M
           S=android/app/src/main/res/values/styles.xml
           sed -i 's#<item name="android:background">@null</item>#<item name="android:background">@null</item><item name="android:windowFullscreen">true</item>#' $S
+      - name: Fixed signing key (updates install over old version)
+        run: mkdir -p ~/.android && cp debug.keystore ~/.android/debug.keystore
       - name: Build debug APK
         working-directory: mobile/android
         run: chmod +x gradlew && ./gradlew assembleDebug
@@ -31,3 +36,13 @@ jobs:
         with:
           name: YFE-Craft-debug-apk
           path: mobile/android/app/build/outputs/apk/debug/app-debug.apk
+      - run: cp android/app/build/outputs/apk/debug/app-debug.apk ../YFE-Craft.apk
+      - uses: ncipollo/release-action@v1
+        with:
+          tag: latest
+          name: YFE Craft (последняя сборка)
+          body: "Скачай YFE-Craft.apk и установи. Игра сама обновляется при запуске. Разработчик: @yfeeeee"
+          artifacts: YFE-Craft.apk
+          allowUpdates: true
+          replacesArtifacts: true
+          makeLatest: true
