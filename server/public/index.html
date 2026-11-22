@@ -384,7 +384,7 @@ const RECIPES = [
 (function () { const mats = [0, B.PLANKS, B.COBBLE, I.ING_IRON, I.DIAMOND]; for (let t = 1; t <= 4; t++) { const m = mats[t]; RECIPES.push(R(150 + t, 1, { [m]: 3, [I.STICK]: 2 }, "table"), R(160 + t, 1, { [m]: 1, [I.STICK]: 2 }, "table"), R(170 + t, 1, { [m]: 2, [I.STICK]: 1 }, "table")); } })();
 // ---------- атлас текстур (процедурно, «векторный» cel-стиль) ----------
 const TS = 32, AT = 16;
-const TILE_NAMES = ["grass_top", "grass_side", "dirt", "stone", "sand", "log_side", "log_top", "leaves", "planks", "cobble", "coal", "copper", "tin", "iron", "gold", "diamond", "glass", "bedrock", "table_top", "table_side", "furnace_front", "furnace_top", "arcane_top", "arcane_side", "lamp", "water", "stonebrick", "machine_top", "gen_side", "smelter_side", "macer_side", "term_side", "battery_side", "solar_top", "crucible_top", "crucible_side", "chest_top", "chest_side", "cable", "mecable", "drive_side", "altar_top", "altar_side", "qb_side", "torch", "torch_flame", "aspipe", "jar_top", "jar_side", "snow", "cactus_top", "cactus_side", "fl_r", "fl_y", "fl_stem", "bed_top", "bed_side", "wool", "wool_r", "wool_y", "chestI_top", "chestI_side", "chestG_top", "chestG_side", "chestD_top", "chestD_side", "press_side", "mill_side", "smelt_top", "smelt_side", "tank_top", "tank_side", "cast_top", "cast_side", "wheel_top", "wheel_side", "wind_top", "wind_side", "belt_e", "belt_w", "belt_s", "belt_n", "belt_side", "rt_top", "rt_side", "uranium", "reactor_top", "reactor_side"];
+const TILE_NAMES = ["grass_top", "grass_side", "dirt", "stone", "sand", "log_side", "log_top", "leaves", "planks", "cobble", "coal", "copper", "tin", "iron", "gold", "diamond", "glass", "bedrock", "table_top", "table_side", "furnace_front", "furnace_top", "arcane_top", "arcane_side", "lamp", "water", "stonebrick", "machine_top", "gen_side", "smelter_side", "macer_side", "term_side", "battery_side", "solar_top", "crucible_top", "crucible_side", "chest_top", "chest_side", "cable", "mecable", "drive_side", "altar_top", "altar_side", "qb_side", "torch", "torch_flame", "aspipe", "jar_top", "jar_side", "snow", "cactus_top", "cactus_side", "fl_r", "fl_y", "fl_stem", "bed_top", "bed_side", "wool", "wool_r", "wool_y", "chestI_top", "chestI_side", "chestG_top", "chestG_side", "chestD_top", "chestD_side", "press_side", "mill_side", "smelt_top", "smelt_side", "tank_top", "tank_side", "cast_top", "cast_side", "wheel_top", "wheel_side", "wind_top", "wind_side", "belt_e", "belt_w", "belt_s", "belt_n", "belt_side", "rt_top", "rt_side", "uranium", "reactor_top", "reactor_side", "shaft_top", "shaft_side", "gear_top", "gear_side"];
 const TILE = {}; TILE_NAMES.forEach((n, i) => (TILE[n] = i));
 const tileCanvas = {};
 function mkRng(seed) { let s = seed >>> 0; return () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296); }
@@ -454,6 +454,12 @@ function genTile(name) {
   else if (name === "cast_top" || name === "cast_side") {
     for (let y = 0; y < TS; y++) for (let x = 0; x < TS; x++) { const e = x < 2 || y < 2 || x > TS - 3 || y > TS - 3; setpx(img, x, y, sh([128, 130, 138], e ? .65 : .9 + hash2(x >> 2, y >> 2, 11) * .14)); }
     if (name === "cast_top") for (let y = 7; y < 25; y++) for (let x = 7; x < 25; x++) { const e = x < 9 || y < 9 || x > 22 || y > 22; setpx(img, x, y, e ? [70, 72, 80] : [48, 50, 58]); }
+  }
+  else if (name === "shaft_top" || name === "shaft_side" || name === "gear_top" || name === "gear_side") {
+    const gr = name.startsWith("gear");
+    for (let y = 0; y < TS; y++) for (let x = 0; x < TS; x++) setpx(img, x, y, sh([126, 92, 52], .9 + hash2(x >> 2, y >> 2, 17) * .15));
+    if (name.endsWith("top")) { for (let y = 0; y < TS; y++) for (let x = 0; x < TS; x++) { const d = Math.hypot(x - 15.5, y - 15.5); if (d < (gr ? 12 : 5)) setpx(img, x, y, gr ? sh([196, 160, 96], d < 4 ? .5 : .95) : [70, 52, 30]); if (gr) { const a = Math.atan2(y - 15.5, x - 15.5); if (d >= 10 && d < 14 && Math.sin(a * 8) > 0) setpx(img, x, y, [196, 160, 96]); } } }
+    else { for (let y = 12; y < 20; y++) for (let x = 0; x < TS; x++) setpx(img, x, y, sh([90, 66, 38], .85 + (x % 8 < 4 ? .12 : 0))); if (gr) for (let y = 4; y < 28; y++) for (let x = 11; x < 21; x++) if ((x + y) % 4 < 2) setpx(img, x, y, [196, 160, 96]); }
   }
   else if (name === "wheel_top" || name === "wheel_side" || name === "wind_top" || name === "wind_side") {
     const wh = name.startsWith("wheel"), base = wh ? [150, 108, 62] : [226, 226, 232];
@@ -1756,7 +1762,11 @@ document.addEventListener("pointerup", (e) => dragEnd(e, false), true); document
 document.addEventListener("click", (e) => { if (performance.now() - (G.openT || 0) < 450 && e.target.closest && e.target.closest("#inv")) { e.stopImmediatePropagation(); e.preventDefault(); return; } if (e.target.closest && e.target.closest(".big,.craft,.slot,.btn,.x,#chips button")) sfx("click"); }, true);
 
 // ---------- IC2: ядерный реактор, уран, радиация (Разработчик: @yfeeeee) ----------
-Object.assign(I, { E_DRILL: 260, E_SAW: 261, U_CELL: 250, U_DEP: 251, COOLANT: 252, VENT: 253, RVENT: 254, REFLECT: 255, EXCH: 256, RAW_URAN: 257, GEIGER: 258, ING_URAN: 259 }); Object.assign(B, { URANIUM: 63, REACTOR: 64, CHARGER: 65, MFE: 66 });
+Object.assign(I, { E_DRILL: 260, E_SAW: 261, U_CELL: 250, U_DEP: 251, COOLANT: 252, VENT: 253, RVENT: 254, REFLECT: 255, EXCH: 256, RAW_URAN: 257, GEIGER: 258, ING_URAN: 259 }); Object.assign(B, { URANIUM: 63, REACTOR: 64, CHARGER: 65, MFE: 66, SHAFT: 67, COGWHEEL: 68 });
+def(B.SHAFT, "Вал (Create)", ["shaft_top", "shaft_top", "shaft_side"], 2, { tool: 2 }); def(B.COGWHEEL, "Шестерня (Create)", ["gear_top", "gear_top", "gear_side"], 2, { tool: 2 });
+DESC[B.SHAFT] = "Вал: передаёт вращение (энергию) от колёс к машинам. Работает как кабель."; DESC[B.COGWHEEL] = "Шестерня: передаёт вращение и даёт небольшой бонус сети (+1 EU/с).";
+ENERGY[B.SHAFT] = 1; ENERGY[B.COGWHEEL] = 1;
+RECIPES.push(R(B.SHAFT, 4, { [B.PLANKS]: 1, [I.STICK]: 2 }, "table"), R(B.COGWHEEL, 2, { [B.PLANKS]: 2, [I.GEAR]: 1 }, "table"));
 def(B.MFE, "МФЭ (большой накопитель)", ["reactor_top", "reactor_top", "battery_side"], 5, { tool: 1, need: 1 }); DESC[B.MFE] = "Многофункциональный накопитель: хранит 40000 EU (в 10 раз больше аккумулятора). Подключается к энергосети.";
 TEDEF[B.MFE] = { slots: 0, energy: true }; ENERGY[B.MFE] = 1;
 RECIPES.push(R(B.MFE, 1, { [B.BATTERY]: 4, [I.PLATE_IRON]: 4, [I.ING_GOLD]: 2 }, "table"));
