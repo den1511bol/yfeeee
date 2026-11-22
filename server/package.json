@@ -1,6 +1,6 @@
 {
   "name": "yfe-craft-server",
-  "version": "4.2.0",
+  "version": "4.3.0",
   "description": "YFE Craft — мультиплеерный сервер (разработчик: @yfeeeee)",
   "main": "server.js",
   "scripts": { "start": "node server.js" },

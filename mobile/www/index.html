@@ -19,7 +19,9 @@ canvas#gl{position:fixed;inset:0;width:100%;height:100%;display:block}
 #joyBase{position:absolute;width:110px;height:110px;margin:-55px 0 0 -55px;border-radius:50%;border:2px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08)}
 #joyKnob{position:absolute;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:rgba(255,255,255,.45);border:2px solid rgba(255,255,255,.7)}
 .btn{position:absolute;pointer-events:auto;display:flex;align-items:center;justify-content:center;border-radius:16px;background:rgba(20,27,46,.72);border:1.5px solid var(--line);color:var(--txt);font-weight:700;font-size:22px;backdrop-filter:blur(2px)}
-.btn:active{background:rgba(90,209,255,.35)}
+.btn{z-index:6;touch-action:manipulation}.btn:before{content:"";position:absolute;inset:-12px}.btn:active{background:rgba(90,209,255,.35);transform:scale(.94)}
+#rotate{position:fixed;inset:0;z-index:999;background:#0b1020;color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;font:700 20px system-ui;text-align:center;gap:14px;touch-action:none}#rotate i{font-size:64px;font-style:normal;display:block;animation:rt 1.6s ease-in-out infinite}@keyframes rt{0%,30%{transform:rotate(0)}70%,100%{transform:rotate(-90deg)}}
+@media (orientation:portrait) and (max-width:900px){#rotate{display:flex}}
 #bJump{right:calc(18px + env(safe-area-inset-right));bottom:calc(120px + env(safe-area-inset-bottom));width:78px;height:78px;border-radius:50%}
 #bFly{right:calc(18px + env(safe-area-inset-right));bottom:calc(210px + env(safe-area-inset-bottom));width:54px;height:54px;border-radius:50%;font-size:20px}
 #bInv{right:calc(12px + env(safe-area-inset-right));top:calc(12px + env(safe-area-inset-top));width:58px;height:58px}
@@ -107,6 +109,7 @@ h1{margin:0 0 4px;font-size:34px;letter-spacing:.5px;background:linear-gradient(
   <div class="btn" id="bMenu">☰</div>
   <div class="btn hidden" id="bChat">💬</div>
 </div>
+<div id="rotate"><i>📱</i>Поверни телефон горизонтально<div style="font-size:13px;font-weight:500;opacity:.7">YFE Craft · @yfeeeee</div></div>
 <div id="inv" class="hidden">
   <div class="panel">
     <div class="head"><span id="invTitle">Инвентарь</span><button class="x" id="invClose">✕</button></div>
@@ -233,7 +236,7 @@ def(B.WOOL_Y, "Жёлтая шерсть", ["wool_y", "wool_y", "wool_y"], .6);
 def(B.PEDESTAL, "Пьедестал матрицы", ["stonebrick", "stonebrick", "stonebrick"], 4, { opaque: false, tool: 1, need: 1 });
 def(B.CHEST_IRON, "Железный сундук", ["chestI_top", "chestI_top", "chestI_side"], 4, { tool: 1, need: 1 });
 def(B.CHEST_GOLD, "Золотой сундук", ["chestG_top", "chestG_top", "chestG_side"], 5, { tool: 1, need: 1 });
-def(B.CHEST_DIAMOND, "Алмазный сундук", ["chestD_top", "chestD_top", "chestD_side", "press_side", "mill_side", "smelt_top", "smelt_side", "tank_top", "tank_side", "cast_top", "cast_side", "wheel_top", "wheel_side", "wind_top", "wind_side", "belt_e", "belt_w", "belt_s", "belt_n", "belt_side"], 6, { tool: 1, need: 1 });
+def(B.CHEST_DIAMOND, "Алмазный сундук", ["chestD_top", "chestD_top", "chestD_side"], 6, { tool: 1, need: 1 });
 def(B.SAND, "Песок", ["sand", "sand", "sand"], .8);
 def(B.LOG, "Бревно", ["log_top", "log_top", "log_side"], 3);
 def(B.LEAVES, "Листва", ["leaves", "leaves", "leaves"], .35, { opaque: false, drop: I.STICK });
@@ -367,7 +370,7 @@ const RECIPES = [
 (function () { const mats = [0, B.PLANKS, B.COBBLE, I.ING_IRON, I.DIAMOND]; for (let t = 1; t <= 4; t++) { const m = mats[t]; RECIPES.push(R(150 + t, 1, { [m]: 3, [I.STICK]: 2 }, "table"), R(160 + t, 1, { [m]: 1, [I.STICK]: 2 }, "table"), R(170 + t, 1, { [m]: 2, [I.STICK]: 1 }, "table")); } })();
 // ---------- атлас текстур (процедурно, «векторный» cel-стиль) ----------
 const TS = 32, AT = 16;
-const TILE_NAMES = ["grass_top", "grass_side", "dirt", "stone", "sand", "log_side", "log_top", "leaves", "planks", "cobble", "coal", "copper", "tin", "iron", "gold", "diamond", "glass", "bedrock", "table_top", "table_side", "furnace_front", "furnace_top", "arcane_top", "arcane_side", "lamp", "water", "stonebrick", "machine_top", "gen_side", "smelter_side", "macer_side", "term_side", "battery_side", "solar_top", "crucible_top", "crucible_side", "chest_top", "chest_side", "cable", "mecable", "drive_side", "altar_top", "altar_side", "qb_side", "torch", "torch_flame", "aspipe", "jar_top", "jar_side", "snow", "cactus_top", "cactus_side", "fl_r", "fl_y", "fl_stem", "bed_top", "bed_side", "wool", "wool_r", "wool_y", "chestI_top", "chestI_side", "chestG_top", "chestG_side", "chestD_top", "chestD_side"];
+const TILE_NAMES = ["grass_top", "grass_side", "dirt", "stone", "sand", "log_side", "log_top", "leaves", "planks", "cobble", "coal", "copper", "tin", "iron", "gold", "diamond", "glass", "bedrock", "table_top", "table_side", "furnace_front", "furnace_top", "arcane_top", "arcane_side", "lamp", "water", "stonebrick", "machine_top", "gen_side", "smelter_side", "macer_side", "term_side", "battery_side", "solar_top", "crucible_top", "crucible_side", "chest_top", "chest_side", "cable", "mecable", "drive_side", "altar_top", "altar_side", "qb_side", "torch", "torch_flame", "aspipe", "jar_top", "jar_side", "snow", "cactus_top", "cactus_side", "fl_r", "fl_y", "fl_stem", "bed_top", "bed_side", "wool", "wool_r", "wool_y", "chestI_top", "chestI_side", "chestG_top", "chestG_side", "chestD_top", "chestD_side", "press_side", "mill_side", "smelt_top", "smelt_side", "tank_top", "tank_side", "cast_top", "cast_side", "wheel_top", "wheel_side", "wind_top", "wind_side", "belt_e", "belt_w", "belt_s", "belt_n", "belt_side"];
 const TILE = {}; TILE_NAMES.forEach((n, i) => (TILE[n] = i));
 const tileCanvas = {};
 function mkRng(seed) { let s = seed >>> 0; return () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296); }
@@ -1236,7 +1239,10 @@ function raycast(maxD) {
 // ---------- звук ----------
 let AC = null, noiseBuf = null;
 function audio() { if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { AC = null; } } if (AC && AC.state === "suspended") AC.resume(); return AC; }
-addEventListener("pointerdown", () => audio(), { passive: true }); addEventListener("keydown", () => audio(), { passive: true });
+addEventListener("pointerdown", () => audio(), { passive: true });
+let fsTried = 0;
+function goFull() { if (fsTried > 3) return; fsTried++; try { const el = document.documentElement; const rq = el.requestFullscreen || el.webkitRequestFullscreen; if (rq && !document.fullscreenElement && !document.webkitFullscreenElement) { const r = rq.call(el, { navigationUI: "hide" }); if (r && r.then) r.then(() => { try { screen.orientation.lock("landscape").catch(() => {}); } catch (e) {} }).catch(() => {}); } else if (screen.orientation && screen.orientation.lock) screen.orientation.lock("landscape").catch(() => {}); } catch (e) {} }
+addEventListener("pointerdown", goFull, { passive: true }); addEventListener("contextmenu", (e) => e.preventDefault()); addEventListener("keydown", () => audio(), { passive: true });
 function sfxNoise(dur, f0, f1, vol, type) {
   const a = audio(); if (!a || G.mute) return;
   if (!noiseBuf) { noiseBuf = a.createBuffer(1, a.sampleRate, a.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
@@ -1595,7 +1601,7 @@ const DUSTCOL = { [I.DUST_COPPER]: "#d6784a", [I.DUST_TIN]: "#cfd9e2", [I.DUST_I
 const armorMaxStack = 1;
 const hasRing = (id) => G.rings.some((r) => r && r.id === id);
 const canFly = () => G.creative || hasRing(I.RING_ANGEL);
-function toggleFly() { if (!canFly()) { toast("Полёт: креатив или кольцо ангела"); return; } toggleFly(); }
+function toggleFly() { if (!canFly()) { toast("Полёт: креатив или кольцо ангела"); return; } P.fly = !P.fly; if (P.fly) { P.vy = 0; P.ground = false; P.y += .05; } toast(P.fly ? "Полёт включён" : "Полёт выключен"); $("bFly").style.background = P.fly ? "rgba(90,209,255,.55)" : ""; }
 function refreshRings() {
   const r = $("rings"); if (!r) return; r.innerHTML = "<span style='color:var(--dim);font-size:12px;font-weight:700;padding:0 4px'>Кольца:</span>";
   for (let i = 0; i < 3; i++) { const s = G.rings[i], d = document.createElement("div"); d.className = "slot"; d.style.cssText = "width:46px;height:46px;flex:none;border-radius:50%;touch-action:manipulation"; if (s) d.appendChild(iconCanvasFor(s.id)); d.addEventListener("click", () => ringTap(i)); r.appendChild(d); }
@@ -2223,7 +2229,7 @@ addEventListener("visibilitychange", () => { if (document.hidden && G.running) s
 addEventListener("beforeunload", () => { if (G.running) saveGame(); });
 if (!loadSave()) $("bPlay").textContent = "▶ Играть (новый мир)";
 requestAnimationFrame(frame);
-window.__g = { BELTV, castDo, TOOL, wear, durMax, MATRIX, matrixStart, matrixMatch, matrixTick, get mx() { return G.mx; }, NODES, nodeAt, nodeRay, ARR, remoteMobs, setCont: (k) => { cont = { key: k }; }, TE, newTE, teTick, TEDEF, G2: G, mobs, trySpawn, damagePlayer, die, updateStats, sfx, NET, asp, RECIPES, G, P, inv, input, B, I, setBlock, blockAt, startWorld, openPanel, closePanel, useBlock, raycast, addItem, get sel() { return selSlot; }, look, aspJars, resOk, AV, spendAsp, jarAdd, RESEARCH, doCraft, canCraft, refreshRecipes };
+window.__g = { TILE, atlasCanvas, BD, genTile, itemIcon, BELTV, castDo, TOOL, wear, durMax, MATRIX, matrixStart, matrixMatch, matrixTick, get mx() { return G.mx; }, NODES, nodeAt, nodeRay, ARR, remoteMobs, setCont: (k) => { cont = { key: k }; }, TE, newTE, teTick, TEDEF, G2: G, mobs, trySpawn, damagePlayer, die, updateStats, sfx, NET, asp, RECIPES, G, P, inv, input, B, I, setBlock, blockAt, startWorld, openPanel, closePanel, useBlock, raycast, addItem, get sel() { return selSlot; }, look, aspJars, resOk, AV, spendAsp, jarAdd, RESEARCH, doCraft, canCraft, refreshRecipes };
 </script>
 </body>
 </html>
