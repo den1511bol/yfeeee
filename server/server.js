@@ -92,7 +92,7 @@ function handle(p, raw) {
     if (sim.TEDEF[id] && !TE.has(kk)) { const te = sim.create(id, kk); TE.set(kk, te); }
   } else if (m.t === "te_slots") {
     const te = TE.get(String(m.k)); if (!te || !Array.isArray(m.slots) || m.slots.length !== te.slots.length) return;
-    te.slots = m.slots.map((s) => (s && typeof s.id === "number" && typeof s.n === "number" && s.n > 0 ? (s.d > 0 ? { id: s.id | 0, n: Math.min(s.n | 0, 9999), d: Math.min(s.d | 0, 100000) } : { id: s.id | 0, n: Math.min(s.n | 0, 9999) }) : null));
+    te.slots = m.slots.map((s) => (s && typeof s.id === "number" && typeof s.n === "number" && s.n > 0 ? (s.d > 0 || s.h > 0 ? { id: s.id | 0, n: Math.min(s.n | 0, 9999), d: Math.min(s.d | 0, 100000), h: Math.min(+s.h || 0, 20000) } : { id: s.id | 0, n: Math.min(s.n | 0, 9999) }) : null));
     if (Array.isArray(m.cells) && te.cells && m.cells.length === te.cells.length) te.cells = m.cells.map((c) => (c && c.items ? { items: c.items, tot: c.tot | 0 } : null));
     if (m.freq) te.freq = Math.max(1, Math.min(999, m.freq | 0));
     sent.set(te.k, teJson(te)); broadcast({ t: "tes", l: [tePub(te)] }, p);
