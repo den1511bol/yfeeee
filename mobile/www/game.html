@@ -46,11 +46,19 @@ canvas#gl{position:fixed;inset:0;width:100%;height:100%;display:block}
 #hurt{position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 40%,rgba(255,0,0,.55));opacity:0;pointer-events:none;transition:opacity .35s;z-index:5}
 #water{position:fixed;inset:0;background:rgba(30,90,200,.28);pointer-events:none;z-index:4;display:none}
 #toast{position:absolute;left:50%;top:18%;transform:translateX(-50%);padding:8px 14px;border-radius:12px;background:rgba(13,18,32,.85);border:1px solid var(--line);font-weight:600;opacity:0;transition:opacity .25s}
-.overlay{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 30%,#1a2a52 0%,#0a0f1e 70%);}
-.card{width:min(92vw,430px);padding:22px;border-radius:22px;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1.5px solid var(--line);box-shadow:0 20px 60px rgba(0,0,0,.6),inset 0 1px 0 #fff1}
+.overlay{position:fixed;inset:0;z-index:20;display:flex;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;background:radial-gradient(ellipse at 50% 30%,#1a2a52 0%,#0a0f1e 70%);}
+.card{margin:auto;width:min(92vw,430px);padding:22px;border-radius:22px;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1.5px solid var(--line);box-shadow:0 20px 60px rgba(0,0,0,.6),inset 0 1px 0 #fff1}
 h1{margin:0 0 4px;font-size:34px;letter-spacing:.5px;background:linear-gradient(90deg,var(--acc),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
 .sub{color:var(--dim);font-size:14px;margin-bottom:16px}
 .big{display:block;width:100%;margin:8px 0;padding:14px;border-radius:14px;border:1.5px solid var(--line);background:var(--panel2);color:var(--txt);font-size:17px;font-weight:700;text-align:center;touch-action:manipulation}
+.card.menu input{width:100%;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--panel);color:var(--txt);font-size:16px;margin-bottom:6px;outline:none}
+@media (max-height:560px){
+.card.menu{width:min(96vw,860px);padding:12px 16px;display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;align-items:start}
+.card.menu>h1,.card.menu>.sub,.card.menu>input,.card.menu>.credit,.card.menu>#mpMsg,.card.menu>#loadbar{grid-column:1/-1;margin-top:0;margin-bottom:0}
+.card.menu>#mpMsg{min-height:0!important;margin:0!important}.card.menu>#mpMsg:empty{display:none}.card.menu>h1{font-size:22px!important}.card.menu>.sub{display:none}
+.card.menu .big{margin:0;padding:10px 6px;font-size:15px}
+.card.menu input{padding:8px 10px;margin:0}
+}
 .big.main{background:linear-gradient(180deg,#2c7fb0,#1f5f8a);border-color:#63c6ff}
 .big:active{filter:brightness(1.25)}
 .credit{margin-top:14px;color:var(--dim);font-size:12px;text-align:center}
@@ -122,24 +130,24 @@ h1{margin:0 0 4px;font-size:34px;letter-spacing:.5px;background:linear-gradient(
 <div id="hurt"></div><div id="water"></div>
 <div id="dead" class="overlay hidden" style="z-index:30;background:rgba(80,0,0,.78)"><div class="card" style="text-align:center"><h1 style="font-size:30px">Ты погиб</h1><button class="big main" id="bResp">Возродиться</button></div></div>
 <div id="title" class="overlay">
-  <div class="card">
+  <div class="card menu">
     <h1>YFE Craft</h1>
-    <div class="sub">Воксельный мир с энергией, машинами и магией — v3.1: лук бьёт мобов друзей</div>
+    <div class="sub">Воксельный мир с энергией, машинами и магией · v4.4</div>
     <input id="nameIn" maxlength="16" placeholder="Твой ник" value="Игрок">
     <input id="srvIn" maxlength="120" placeholder="Адрес сервера (для приложения): your-app.up.railway.app" style="display:none">
-    <button class="big main" id="bMP">🌐 Мультиплеер</button>
-    <div id="mpMsg" class="credit" style="margin:2px 0 6px;min-height:16px"></div>
-    <button class="big" id="bMPS">🌐 Мультиплеер (выживание)</button>
-    <button class="big" id="bPlay">▶ Одиночная игра</button>
+    <button class="big main" id="bPlay">▶ Одиночная игра</button>
     <button class="big" id="bNew">✦ Новый мир (креатив)</button>
     <button class="big" id="bNewS">⚔ Новый мир (выживание)</button>
     <button class="big" id="bDist">Дальность прорисовки: 4</button>
+    <button class="big" id="bMP">🌐 Мультиплеер</button>
+    <button class="big" id="bMPS">🌐 Мультиплеер (выживание)</button>
+    <div id="mpMsg" class="credit" style="margin:2px 0 6px;min-height:16px"></div>
     <div id="loadbar" class="hidden"><i></i></div>
     <div class="credit">Разработчик: @yfeeeee · мир сохраняется в браузере</div>
   </div>
 </div>
 <div id="pause" class="overlay hidden">
-  <div class="card">
+  <div class="card menu">
     <h1 style="font-size:28px">Пауза</h1>
     <button class="big main" id="pResume">Продолжить</button>
     <button class="big" id="pDist">Дальность прорисовки: 4</button>
