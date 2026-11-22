@@ -134,7 +134,7 @@ h1{margin:0 0 4px;font-size:34px;letter-spacing:.5px;background:linear-gradient(
 <div id="title" class="overlay">
   <div class="card menu">
     <h1>YFE Craft</h1>
-    <div class="sub">Воксельный мир с энергией, машинами и магией · v4.7</div>
+    <div class="sub">Воксельный мир с энергией, машинами и магией · v4.8</div>
     <input id="nameIn" maxlength="16" placeholder="Твой ник" value="Игрок">
     <input id="srvIn" maxlength="120" placeholder="Адрес сервера (для приложения): your-app.up.railway.app" style="display:none">
     <button class="big main" id="bPlay">▶ Одиночная игра</button>
@@ -191,6 +191,7 @@ h1{margin:0 0 4px;font-size:34px;letter-spacing:.5px;background:linear-gradient(
   <p><b>Стол исследований и Таумономикон.</b> Стол исследований (верстак: 6 досок, 2 палки, 2 шерсти) + письменные принадлежности (палка, уголь, шерсть) — изучай знания за аспекты, они открывают рецепты. Таумономикон (3 доски, кристалл, шерсть) — книга с основами, аспектами и списком знаний.</p>
   <p><b>Управление предметами.</b> Нажми на предмет — он подсветится, внизу появится название и описание. Затем нажми на нужную ячейку (в сундуке, машине или инвентаре) — предмет переложится. Можно и перетащить предмет пальцем на другую ячейку. Повторное нажатие на ту же ячейку в контейнере забирает предмет себе.</p>
   <p><b>Ядерный реактор (IC2).</b> Реактор: генератор + 8 железных пластин + шестерня. Топливо — урановая ячейка (слиток урана из руды на глубине + пластина). Сетка 9×6: соседние ячейки и отражатели дают импульсы (больше энергии, но и тепла). Охлаждай радиаторами, охлаждающими ячейками и теплообменниками. Нагрев 10000 — взрыв и радиоактивная зона. Радиация копится от урана в рюкзаке и заражённых мест; защита — радиационный костюм (жёлтая шерсть). Счётчик Гейгера в руке показывает уровень.</p>
+  <p><b>Электроинструменты.</b> Электробур и электропила (батарея + пластины + шестерни + бронза) — очень быстрые, но разряжаются. Заряжай на зарядной станции, подключённой к энергосети.</p>
   <p style="opacity:.6;font-size:12px">Разработчик: @yfeeeee</p>
   <button class="big main" id="helpClose">Понятно</button>
   <div class="credit">Разработчик: @yfeeeee</div>
@@ -929,7 +930,7 @@ function heldId() { const s = inv[selSlot]; return s ? s.id : 0; }
 // ---------- UI ----------
 function durMax(id) { return DUR[id] || (TOOL[id] ? (DUR[id] = TOOL[id].dur || [0, 60, 132, 251, 1562, 2400][TOOL[id].tier] || 250) : 0); }
 function durBar(d, s) { const m = s.d ? durMax(s.id) : 0; if (!m) return; const f = Math.max(0, 1 - s.d / m), b = document.createElement("div"); b.style.cssText = `position:absolute;left:12%;bottom:6%;height:3px;width:${f * 76}%;background:hsl(${f * 120},85%,50%);border-radius:2px;box-shadow:0 0 0 1px #000a`; d.appendChild(b); }
-function wear(n) { if (G.creative) return; const s = inv[selSlot]; if (!s || !TOOL[s.id]) return; s.d = (s.d || 0) + (n || 1); if (s.d >= durMax(s.id)) { inv[selSlot] = null; toast("Инструмент сломался"); sfx("break"); refreshUI(); } else refreshHotbar(); }
+function wear(n) { if (G.creative) return; const s = inv[selSlot]; if (!s || !TOOL[s.id]) return; if (TOOL[s.id].elec) { s.d = Math.min(durMax(s.id), (s.d || 0) + (n || 1)); if (s.d >= durMax(s.id)) toast("Инструмент разряжен — зарядь на зарядной станции"); refreshHotbar(); return; } s.d = (s.d || 0) + (n || 1); if (s.d >= durMax(s.id)) { inv[selSlot] = null; toast("Инструмент сломался"); sfx("break"); refreshUI(); } else refreshHotbar(); }
 function slotEl(i, big) {
   const d = document.createElement("div"); d.className = "slot"; d.dataset.i = i;
   const s = inv[i]; if (s) d.classList.add("hasitem");
@@ -1438,7 +1439,7 @@ function breakTime(id) {
   const d = BD[id], T = TOOL[heldId()];
   if (G.creative) return d.hard > 1e8 ? Infinity : .15;
   if (d.hard > 1e8) return Infinity;
-  let sp = 1; if (T && d.tool === T.t) sp = T.sp || SPEED[T.tier];
+  let sp = 1; if (T && d.tool === T.t) { sp = T.sp || SPEED[T.tier]; if (T.elec && (inv[selSlot].d || 0) >= durMax(inv[selSlot].id)) sp = 1; }
   return d.hard / sp / (hasRing(I.RING_HASTE) ? 1.6 : 1);
 }
 function doBreak(hit) {
@@ -1755,7 +1756,12 @@ document.addEventListener("pointerup", (e) => dragEnd(e, false), true); document
 document.addEventListener("click", (e) => { if (performance.now() - (G.openT || 0) < 450 && e.target.closest && e.target.closest("#inv")) { e.stopImmediatePropagation(); e.preventDefault(); return; } if (e.target.closest && e.target.closest(".big,.craft,.slot,.btn,.x,#chips button")) sfx("click"); }, true);
 
 // ---------- IC2: ядерный реактор, уран, радиация (Разработчик: @yfeeeee) ----------
-Object.assign(I, { U_CELL: 250, U_DEP: 251, COOLANT: 252, VENT: 253, RVENT: 254, REFLECT: 255, EXCH: 256, RAW_URAN: 257, GEIGER: 258, ING_URAN: 259 }); Object.assign(B, { URANIUM: 63, REACTOR: 64 });
+Object.assign(I, { E_DRILL: 260, E_SAW: 261, U_CELL: 250, U_DEP: 251, COOLANT: 252, VENT: 253, RVENT: 254, REFLECT: 255, EXCH: 256, RAW_URAN: 257, GEIGER: 258, ING_URAN: 259 }); Object.assign(B, { URANIUM: 63, REACTOR: 64, CHARGER: 65 });
+def(B.CHARGER, "Зарядная станция", ["machine_top", "machine_top", "battery_side"], 5, { tool: 1, need: 1 });
+TOOL[I.E_DRILL] = { t: 1, tier: 4, sp: 16, col: "#ffd23a", dur: 800, elec: true }; TOOL[I.E_SAW] = { t: 2, tier: 4, sp: 16, col: "#ff9a3a", dur: 800, elec: true };
+ITEMNAME[I.E_DRILL] = "Электробур"; ITEMNAME[I.E_SAW] = "Электропила"; ITEMNAME[B.CHARGER] = "Зарядная станция";
+DESC[I.E_DRILL] = "Электробур: очень быстрая кирка. Заряд — полоска под значком; заряжай на зарядной станции."; DESC[I.E_SAW] = "Электропила: очень быстрый топор. Заряжай на зарядной станции."; DESC[B.CHARGER] = "Зарядная станция. Положи электроинструмент — зарядится от энергосети (30 EU/с).";
+RECIPES.push(R(B.CHARGER, 1, { [B.BATTERY]: 1, [I.PLATE_IRON]: 3, [I.ING_COPPER]: 2 }, "table"), R(I.E_DRILL, 1, { [B.BATTERY]: 1, [I.PLATE_IRON]: 4, [I.GEAR]: 2, [I.ING_BRONZE]: 2 }, "table"), R(I.E_SAW, 1, { [B.BATTERY]: 1, [I.PLATE_IRON]: 4, [I.GEAR]: 1, [I.ING_BRONZE]: 3 }, "table"));
 def(B.URANIUM, "Урановая руда", ["uranium", "uranium", "uranium"], 10, { tool: 1, need: 3, drop: I.RAW_URAN });
 def(B.REACTOR, "Ядерный реактор", ["reactor_top", "reactor_top", "reactor_side"], 8, { tool: 1, need: 2 });
 Object.assign(ITEMNAME, { [I.U_CELL]: "Урановая ячейка", [I.U_DEP]: "Обеднённая ячейка", [I.COOLANT]: "Охлаждающая ячейка", [I.VENT]: "Радиатор", [I.RVENT]: "Радиатор реактора", [I.REFLECT]: "Отражатель нейтронов", [I.EXCH]: "Теплообменник", [I.RAW_URAN]: "Сырой уран", [I.GEIGER]: "Счётчик Гейгера", [I.ING_URAN]: "Урановый слиток" });
@@ -1766,6 +1772,7 @@ function initHazmat() { for (let m = 2; m < 3; m++) { ARM_MATS[m] = ["Радиа
 SMELT[I.RAW_URAN] = I.ING_URAN;
 RECIPES.push(R(I.U_CELL, 1, { [I.ING_URAN]: 1, [I.PLATE_IRON]: 1 }, "table"), R(I.COOLANT, 1, { [I.ING_TIN]: 3, [B.GLASS]: 1 }, "table"), R(I.VENT, 1, { [I.PLATE_IRON]: 2, [I.ING_COPPER]: 2 }, "table"), R(I.RVENT, 1, { [I.VENT]: 1, [I.PLATE_COPPER]: 2 }, "table"), R(I.REFLECT, 1, { [I.PLATE_COPPER]: 3, [I.ING_TIN]: 1 }, "table"), R(I.EXCH, 1, { [I.PLATE_COPPER]: 2, [I.ING_GOLD]: 1, [I.ING_TIN]: 1 }, "table"), R(I.GEIGER, 1, { [I.PLATE_IRON]: 2, [I.ING_GOLD]: 1, [B.GLASS]: 1 }, "table"), R(B.REACTOR, 1, { [B.GENERATOR]: 1, [I.PLATE_IRON]: 8, [I.GEAR]: 1 }, "table"));
 const REACT_OK = new Set([250, 252, 253, 254, 255, 256]);
+TEDEF[B.CHARGER] = { slots: 1, energy: true, accept: (i, id) => !!(TOOL[id] && TOOL[id].elec) }; ENERGY[B.CHARGER] = 1;
 TEDEF[B.REACTOR] = { slots: 54, energy: true, accept: (i, id) => REACT_OK.has(id) }; ENERGY[B.REACTOR] = 1;
 const HMAX = { 252: 10000, 253: 1000, 254: 1000, 256: 2500 }, RHEAT = { 252: 1, 253: 1, 254: 1, 256: 1 };
 function reactorStep(te) {
@@ -1835,11 +1842,12 @@ function teTick(dt) {
       const cur = q.pop(), p = cur.split(",").map(Number), t = TE.get(cur); if (t) comp.push(t);
       for (const d of DIRS) { const nk = (p[0] + d[0]) + "," + (p[1] + d[1]) + "," + (p[2] + d[2]); if (cells.has(nk)) continue; const b = blockAt(p[0] + d[0], p[1] + d[1], p[2] + d[2]); if (b > 0 && ENERGY[b]) { cells.add(nk); seen.add(nk); q.push(nk); } }
     }
-    let req = 0, batE = 0, batCap = 0, prod = 0; const bats = [], gens = [], cons = [];
+    let req = 0, batE = 0, batCap = 0, prod = 0; const bats = [], gens = [], cons = [], chg = [];
     for (const t of comp) {
       if (t.t === B.BATTERY) { bats.push(t); batE += t.e; batCap += BAT_CAP; }
       else if (t.t === B.GENERATOR) gens.push(t);
       else if (MACHS.has(t.t)) { const j = machineJob(t); if (j) { cons.push([t, j]); req += j.rate * dt; } else t.p = 0; }
+      else if (t.t === B.CHARGER) { if (t.slots[0] && t.slots[0].d > 0) { req += 30 * dt; chg.push(t); } }
       else if (t.t === B.REACTOR) { prod += (t.e || 0) * dt; }
       else if (t.t === B.WHEEL) { const q2 = t.k.split(",").map(Number); let w = 0; for (const d of DIRS) { if (blockAt(q2[0] + d[0], q2[1] + d[1], q2[2] + d[2]) === B.WATER) w = 1; const tq = TE.get((q2[0] + d[0]) + "," + (q2[1] + d[1]) + "," + (q2[2] + d[2])); if (tq && tq.t === B.TANK && tq.cells[0] && tq.cells[0].items.water > 0) w = 1; } t.w = w; prod += w * 12 * dt; }
       else if (t.t === B.WINDMILL) { t.skyT = (t.skyT || 0) - dt; if (t.skyT <= 0) { t.skyT = 2; const q2 = t.k.split(",").map(Number); t.sky = skyClear(q2[0], q2[1], q2[2]); t.hh = q2[1]; } t.w = t.sky ? 1 : 0; prod += t.sky ? (3 + 9 * clamp((t.hh - 20) / 40, 0, 1)) * dt : 0; }
@@ -1852,6 +1860,7 @@ function teTick(dt) {
     }
     const total = prod + batE, used = Math.min(total, req), eff = req > 0 ? used / req : 0, stored = Math.min(total - used, batCap);
     for (const b of bats) b.e = stored / bats.length;
+    for (const t of chg) t.slots[0].d = Math.max(0, t.slots[0].d - 40 * dt * eff);
     for (const [t, j] of cons) { t.p += dt * eff; if (t.p >= 4) { t.p = 0; t.slots[0].n--; if (t.slots[0].n <= 0) t.slots[0] = null; const o = t.slots[1]; if (o) o.n += j.n; else t.slots[1] = { id: j.out, n: j.n }; } }
     const info = { prod: prod / dt, use: used / dt, stored, cap: batCap }; for (const t of comp) t.info = info;
   }
