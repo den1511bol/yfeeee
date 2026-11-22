@@ -30,6 +30,8 @@ canvas#gl{position:fixed;inset:0;width:100%;height:100%;display:block}
 .slot{position:relative;width:46px;height:46px;border-radius:9px;background:var(--panel2);border:1.5px solid #2f3e69;display:flex;align-items:center;justify-content:center}
 .slot canvas{width:38px;height:38px;image-rendering:pixelated;pointer-events:none}
 .slot .n{position:absolute;right:3px;bottom:1px;font-size:12px;font-weight:800;text-shadow:0 1px 2px #000,0 0 3px #000;pointer-events:none}
+#inv .slot.hasitem{touch-action:none!important}
+#dragGhost{position:fixed;z-index:1000;width:52px;height:52px;margin:-26px 0 0 -26px;pointer-events:none;opacity:.92;filter:drop-shadow(0 4px 8px #000a)}#dragGhost canvas{width:100%;height:100%;image-rendering:pixelated}
 .slot.sel{border-color:var(--gold);box-shadow:0 0 10px rgba(255,210,90,.55)}
 .slot.held{border-color:var(--acc);box-shadow:0 0 12px rgba(90,209,255,.7)}
 #mineBar{position:absolute;left:50%;top:56%;width:120px;height:8px;margin-left:-60px;border-radius:6px;background:rgba(0,0,0,.5);border:1px solid #fff5;overflow:hidden}
@@ -132,7 +134,7 @@ h1{margin:0 0 4px;font-size:34px;letter-spacing:.5px;background:linear-gradient(
 <div id="title" class="overlay">
   <div class="card menu">
     <h1>YFE Craft</h1>
-    <div class="sub">Воксельный мир с энергией, машинами и магией · v4.5</div>
+    <div class="sub">Воксельный мир с энергией, машинами и магией · v4.6</div>
     <input id="nameIn" maxlength="16" placeholder="Твой ник" value="Игрок">
     <input id="srvIn" maxlength="120" placeholder="Адрес сервера (для приложения): your-app.up.railway.app" style="display:none">
     <button class="big main" id="bPlay">▶ Одиночная игра</button>
@@ -187,7 +189,7 @@ h1{margin:0 0 4px;font-size:34px;letter-spacing:.5px;background:linear-gradient(
   <p><b>Энергия природы.</b> Водяное колесо (вода рядом, 12 EU/с) и ветряк (небо над головой, до 12 EU/с) соединяются кабелями с прессом и жерновами; лопасти вращаются.</p>
   <p><b>Конвейер.</b> Лента сама выбирает направление по тому, куда ты смотришь при установке, и несёт тебя по себе. Ведро: набери воды, стоя в воде, и вылей в резервуар (водяное колесо рядом с таким резервуаром работает).</p>
   <p><b>Стол исследований и Таумономикон.</b> Стол исследований (верстак: 6 досок, 2 палки, 2 шерсти) + письменные принадлежности (палка, уголь, шерсть) — изучай знания за аспекты, они открывают рецепты. Таумономикон (3 доски, кристалл, шерсть) — книга с основами, аспектами и списком знаний.</p>
-  <p><b>Управление предметами.</b> Нажми на предмет — он подсветится, внизу появится название и описание. Затем нажми на нужную ячейку (в сундуке, машине или инвентаре) — предмет переложится. Повторное нажатие на ту же ячейку в контейнере забирает предмет себе.</p>
+  <p><b>Управление предметами.</b> Нажми на предмет — он подсветится, внизу появится название и описание. Затем нажми на нужную ячейку (в сундуке, машине или инвентаре) — предмет переложится. Можно и перетащить предмет пальцем на другую ячейку. Повторное нажатие на ту же ячейку в контейнере забирает предмет себе.</p>
   <p style="opacity:.6;font-size:12px">Разработчик: @yfeeeee</p>
   <button class="big main" id="helpClose">Понятно</button>
   <div class="credit">Разработчик: @yfeeeee</div>
@@ -910,7 +912,7 @@ function durBar(d, s) { const m = s.d ? durMax(s.id) : 0; if (!m) return; const 
 function wear(n) { if (G.creative) return; const s = inv[selSlot]; if (!s || !TOOL[s.id]) return; s.d = (s.d || 0) + (n || 1); if (s.d >= durMax(s.id)) { inv[selSlot] = null; toast("Инструмент сломался"); sfx("break"); refreshUI(); } else refreshHotbar(); }
 function slotEl(i, big) {
   const d = document.createElement("div"); d.className = "slot"; d.dataset.i = i;
-  const s = inv[i];
+  const s = inv[i]; if (s) d.classList.add("hasitem");
   if (s) { d.appendChild(iconCanvasFor(s.id)); if (s.n > 1) { const n = document.createElement("span"); n.className = "n"; n.textContent = s.n; d.appendChild(n); } durBar(d, s); d.title = iname(s.id); }
   return d;
 }
@@ -1689,6 +1691,20 @@ function renderBook(box) {
 def(B.RESTABLE, "Стол исследований", ["rt_top", "rt_side", "rt_side"], 3, { tool: 2 });
 Object.assign(ITEMNAME, { [I.SCRIBE]: "Письменные принадлежности", [I.BOOK]: "Таумономикон" });
 RECIPES.push(R(I.SCRIBE, 1, { [I.STICK]: 1, [I.COAL]: 1, [B.WOOL]: 1 }, "table"), R(I.BOOK, 1, { [B.PLANKS]: 3, [I.CRYSTAL]: 1, [B.WOOL]: 1 }, "table"), R(B.RESTABLE, 1, { [B.PLANKS]: 6, [I.STICK]: 2, [B.WOOL]: 2 }, "table"));
+// перетаскивание предметов пальцем: взял слот -> отпустил над другим слотом (то же, что два нажатия)
+let dg = null, ghost = null;
+document.addEventListener("pointerdown", (e) => { const sl = e.target.closest && e.target.closest("#inv .slot.hasitem"); dg = sl ? { sl, x: e.clientX, y: e.clientY, on: false, id: e.pointerId } : null; }, true);
+document.addEventListener("pointermove", (e) => {
+  if (!dg || e.pointerId !== dg.id) return;
+  if (!dg.on && Math.hypot(e.clientX - dg.x, e.clientY - dg.y) > 12) { const cv = dg.sl.querySelector("canvas"); if (!cv) { dg = null; return; } dg.on = true; ghost = document.createElement("div"); ghost.id = "dragGhost"; const c2 = document.createElement("canvas"); c2.width = cv.width; c2.height = cv.height; c2.getContext("2d").drawImage(cv, 0, 0); ghost.appendChild(c2); document.body.appendChild(ghost); dg.sl.style.opacity = .4; }
+  if (dg.on && ghost) { ghost.style.left = e.clientX + "px"; ghost.style.top = e.clientY + "px"; }
+}, true);
+function dragEnd(e, cancel) {
+  if (!dg || e.pointerId !== dg.id) return; const d = dg; dg = null; if (ghost) { ghost.remove(); ghost = null; } d.sl.style.opacity = ""; if (!d.on || cancel) return;
+  const t = document.elementFromPoint(e.clientX, e.clientY), ts = t && t.closest && t.closest("#inv .slot"); if (!ts || ts === d.sl) return;
+  G.openT = 0; d.sl.click(); const t2 = document.elementFromPoint(e.clientX, e.clientY), ts2 = t2 && t2.closest && t2.closest("#inv .slot"); if (ts2) ts2.click(); G.openT = 0;
+}
+document.addEventListener("pointerup", (e) => dragEnd(e, false), true); document.addEventListener("pointercancel", (e) => dragEnd(e, true), true);
 document.addEventListener("click", (e) => { if (performance.now() - (G.openT || 0) < 450 && e.target.closest && e.target.closest("#inv")) { e.stopImmediatePropagation(); e.preventDefault(); return; } if (e.target.closest && e.target.closest(".big,.craft,.slot,.btn,.x,#chips button")) sfx("click"); }, true);
 
 let teAcc = 0;
@@ -1755,7 +1771,7 @@ function ringTap(i) {
 // ---------- панели механизмов ----------
 let cont = null;
 function slotBtn(s, fn, extra) {
-  const d = document.createElement("div"); d.className = "slot" + (s && G.csel && G.csel.te.slots[G.csel.i] === s ? " held" : ""); d.style.cssText = "width:100%;height:auto;aspect-ratio:1;touch-action:manipulation" + (extra || "");
+  const d = document.createElement("div"); d.className = "slot" + (s ? " hasitem" : "") + (s && G.csel && G.csel.te.slots[G.csel.i] === s ? " held" : ""); d.style.cssText = "width:100%;height:auto;aspect-ratio:1;touch-action:manipulation" + (extra || "");
   if (s) { const c = iconCanvasFor(s.id); c.style.cssText = "width:78%;height:78%"; d.appendChild(c); if (s.n > 1) { const n = document.createElement("span"); n.className = "n"; n.textContent = s.n; d.appendChild(n); } durBar(d, s); d.title = iname(s.id); }
   d.addEventListener("click", fn); return d;
 }
@@ -1974,7 +1990,8 @@ function mobStep(m, dt) {
   } else if (D.hostile && tg && dist < 22) { dirx = dxp / (dist || 1); dirz = dzp / (dist || 1); spd = D.spd; }
   else { m.wt -= dt; if (m.wt <= 0) { m.wt = 1 + Math.random() * 3; m.wdir = Math.random() < .4 ? null : Math.random() * 6.283; } if (m.wdir !== null) { dirx = Math.cos(m.wdir); dirz = Math.sin(m.wdir); spd = D.spd * .6; } }
   m.kx *= Math.exp(-6 * dt); m.kz *= Math.exp(-6 * dt);
-  const vx = dirx * spd + m.kx, vz = dirz * spd + m.kz, inW = blockAt(Math.floor(m.x), Math.floor(m.y + .3), Math.floor(m.z)) === B.WATER;
+  let bvx = 0, bvz = 0; { const bb = blockAt(Math.floor(m.x), Math.floor(m.y - .05), Math.floor(m.z)); if (bb >= B.BELT && bb <= B.BELT_N) { bvx = BELTV[bb - B.BELT][0] * 2.6; bvz = BELTV[bb - B.BELT][1] * 2.6; } }
+  const vx = dirx * spd + m.kx + bvx, vz = dirz * spd + m.kz + bvz, inW = blockAt(Math.floor(m.x), Math.floor(m.y + .3), Math.floor(m.z)) === B.WATER;
   if (inW) { m.vy = Math.min(m.vy + 20 * dt, 2.5); } else m.vy = Math.max(m.vy - 26 * dt, -30);
   let blockedH = false; const ox = m.x, oz = m.z;
   if (!collidesBox(m.x + vx * dt, m.y, m.z, D.w, D.h)) m.x += vx * dt; else blockedH = true;
