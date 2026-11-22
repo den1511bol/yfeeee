@@ -1756,7 +1756,10 @@ document.addEventListener("pointerup", (e) => dragEnd(e, false), true); document
 document.addEventListener("click", (e) => { if (performance.now() - (G.openT || 0) < 450 && e.target.closest && e.target.closest("#inv")) { e.stopImmediatePropagation(); e.preventDefault(); return; } if (e.target.closest && e.target.closest(".big,.craft,.slot,.btn,.x,#chips button")) sfx("click"); }, true);
 
 // ---------- IC2: ядерный реактор, уран, радиация (Разработчик: @yfeeeee) ----------
-Object.assign(I, { E_DRILL: 260, E_SAW: 261, U_CELL: 250, U_DEP: 251, COOLANT: 252, VENT: 253, RVENT: 254, REFLECT: 255, EXCH: 256, RAW_URAN: 257, GEIGER: 258, ING_URAN: 259 }); Object.assign(B, { URANIUM: 63, REACTOR: 64, CHARGER: 65 });
+Object.assign(I, { E_DRILL: 260, E_SAW: 261, U_CELL: 250, U_DEP: 251, COOLANT: 252, VENT: 253, RVENT: 254, REFLECT: 255, EXCH: 256, RAW_URAN: 257, GEIGER: 258, ING_URAN: 259 }); Object.assign(B, { URANIUM: 63, REACTOR: 64, CHARGER: 65, MFE: 66 });
+def(B.MFE, "МФЭ (большой накопитель)", ["reactor_top", "reactor_top", "battery_side"], 5, { tool: 1, need: 1 }); DESC[B.MFE] = "Многофункциональный накопитель: хранит 40000 EU (в 10 раз больше аккумулятора). Подключается к энергосети.";
+TEDEF[B.MFE] = { slots: 0, energy: true }; ENERGY[B.MFE] = 1;
+RECIPES.push(R(B.MFE, 1, { [B.BATTERY]: 4, [I.PLATE_IRON]: 4, [I.ING_GOLD]: 2 }, "table"));
 def(B.CHARGER, "Зарядная станция", ["machine_top", "machine_top", "battery_side"], 5, { tool: 1, need: 1 });
 TOOL[I.E_DRILL] = { t: 1, tier: 4, sp: 16, col: "#ffd23a", dur: 800, elec: true }; TOOL[I.E_SAW] = { t: 2, tier: 4, sp: 16, col: "#ff9a3a", dur: 800, elec: true };
 ITEMNAME[I.E_DRILL] = "Электробур"; ITEMNAME[I.E_SAW] = "Электропила"; ITEMNAME[B.CHARGER] = "Зарядная станция";
@@ -1844,7 +1847,7 @@ function teTick(dt) {
     }
     let req = 0, batE = 0, batCap = 0, prod = 0; const bats = [], gens = [], cons = [], chg = [];
     for (const t of comp) {
-      if (t.t === B.BATTERY) { bats.push(t); batE += t.e; batCap += BAT_CAP; }
+      if (t.t === B.BATTERY || t.t === B.MFE) { bats.push(t); batE += t.e; batCap += t.t === B.MFE ? 40000 : BAT_CAP; }
       else if (t.t === B.GENERATOR) gens.push(t);
       else if (MACHS.has(t.t)) { const j = machineJob(t); if (j) { cons.push([t, j]); req += j.rate * dt; } else t.p = 0; }
       else if (t.t === B.CHARGER) { if (t.slots[0] && t.slots[0].d > 0) { req += 30 * dt; chg.push(t); } }
@@ -1859,7 +1862,7 @@ function teTick(dt) {
       if (g.burn > 0) { g.burn -= dt; prod += 20 * dt; }
     }
     const total = prod + batE, used = Math.min(total, req), eff = req > 0 ? used / req : 0, stored = Math.min(total - used, batCap);
-    for (const b of bats) b.e = stored / bats.length;
+    for (const b of bats) b.e = stored * ((b.t === B.MFE ? 40000 : BAT_CAP) / batCap);
     for (const t of chg) t.slots[0].d = Math.max(0, t.slots[0].d - 40 * dt * eff);
     for (const [t, j] of cons) { t.p += dt * eff; if (t.p >= 4) { t.p = 0; t.slots[0].n--; if (t.slots[0].n <= 0) t.slots[0] = null; const o = t.slots[1]; if (o) o.n += j.n; else t.slots[1] = { id: j.out, n: j.n }; } }
     const info = { prod: prod / dt, use: used / dt, stored, cap: batCap }; for (const t of comp) t.info = info;
@@ -1932,7 +1935,7 @@ function renderSpecial(box) {
   if (D.energy) {
     const i = te.info; const lines = [];
     lines.push(i ? `Сеть: выработка <b>${i.prod.toFixed(0)}</b> EU/с · расход <b>${i.use.toFixed(0)}</b> · запас <b>${Math.round(i.stored)}</b>/${i.cap}` : "Сеть: подключи кабелем генератор или солнечную панель");
-    if (te.t === B.BATTERY) lines.push(`Заряд блока: <b>${Math.round(te.e)}</b> / ${BAT_CAP} EU`);
+    if (te.t === B.BATTERY || te.t === B.MFE) lines.push(`Заряд блока: <b>${Math.round(te.e)}</b> / ${te.t === B.MFE ? 40000 : BAT_CAP} EU`);
     if (te.t === B.GENERATOR) lines.push(te.burn > 0 ? `Горит: ещё <b>${te.burn.toFixed(0)}</b> с · даёт 20 EU/с` : "Не горит — положи топливо (уголь, дерево)");
     if (te.t === B.SOLAR) lines.push("Даёт до 6 EU/с днём под открытым небом");
     if (te.t === B.WHEEL) lines.push("Нужна вода рядом (или резервуар с водой): даёт 12 EU/с");
@@ -2511,7 +2514,7 @@ addEventListener("visibilitychange", () => { if (document.hidden && G.running) s
 addEventListener("beforeunload", () => { if (G.running) saveGame(); });
 if (!loadSave()) $("bPlay").textContent = "▶ Играть (новый мир)";
 requestAnimationFrame(frame);
-window.__g = { reactorBoom, radTick, hazFrac, tapCont, slotTap, startResearch, openResTable, RESEARCH, TILE, atlasCanvas, BD, genTile, itemIcon, BELTV, castDo, TOOL, wear, durMax, MATRIX, matrixStart, matrixMatch, matrixTick, get mx() { return G.mx; }, NODES, nodeAt, nodeRay, ARR, remoteMobs, setCont: (k) => { cont = { key: k }; }, TE, newTE, teTick, TEDEF, G2: G, mobs, trySpawn, damagePlayer, die, updateStats, sfx, NET, asp, RECIPES, G, P, inv, input, B, I, setBlock, blockAt, startWorld, openPanel, closePanel, useBlock, raycast, addItem, get sel() { return selSlot; }, look, aspJars, resOk, AV, spendAsp, jarAdd, RESEARCH, doCraft, canCraft, refreshRecipes };
+window.__g = { allItemIds, doBreak, reactorBoom, radTick, hazFrac, tapCont, slotTap, startResearch, openResTable, RESEARCH, TILE, atlasCanvas, BD, genTile, itemIcon, BELTV, castDo, TOOL, wear, durMax, MATRIX, matrixStart, matrixMatch, matrixTick, get mx() { return G.mx; }, NODES, nodeAt, nodeRay, ARR, remoteMobs, setCont: (k) => { cont = { key: k }; }, TE, newTE, teTick, TEDEF, G2: G, mobs, trySpawn, damagePlayer, die, updateStats, sfx, NET, asp, RECIPES, G, P, inv, input, B, I, setBlock, blockAt, startWorld, openPanel, closePanel, useBlock, raycast, addItem, get sel() { return selSlot; }, look, aspJars, resOk, AV, spendAsp, jarAdd, RESEARCH, doCraft, canCraft, refreshRecipes };
 </script>
 </body>
 </html>
