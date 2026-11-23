@@ -1971,9 +1971,9 @@ function renderSpecial(box) {
     if (te.t === B.REACTOR) renderReactorUI(box, te); else note(box, lines.join("<br>"));
   }
   if (D.slots) {
-    note(box, CHESTS.has(te.t) ? "Выбери предмет слева, затем нажми на ячейку здесь. Нажми на предмет здесь — заберёшь." : D.slots === 2 ? "Слева — вход, справа — результат. Выбери предмет в инвентаре и нажми на вход." : "Выбери предмет в инвентаре, затем нажми на ячейку.");
+    note(box, CHESTS.has(te.t) ? "Выбери предмет слева, затем нажми на ячейку здесь. Нажми на предмет здесь — заберёшь." : te.t === B.TSTATION ? "Слева — инструмент для ремонта, справа — слитки его материала (каждый чинит 25%). Выбери предмет в инвентаре и нажми на ячейку." : D.slots === 2 ? "Слева — вход, справа — результат. Выбери предмет в инвентаре и нажми на вход." : "Выбери предмет в инвентаре, затем нажми на ячейку.");
     const g = document.createElement("div"); const cols = te.t === B.REACTOR ? 9 : D.slots > 54 ? 9 : D.slots > 9 ? 6 : D.slots; g.style.cssText = `display:grid;grid-template-columns:repeat(${cols},1fr);gap:5px;max-width:${D.slots > 9 ? "100%" : 70 * D.slots + "px"}`;
-    for (let i = 0; i < D.slots; i++) g.appendChild(slotBtn(te.slots[i], () => tapCont(i), !CHESTS.has(te.t) && i === 1 ? ";border-color:#5fe08a" : ""));
+    for (let i = 0; i < D.slots; i++) g.appendChild(slotBtn(te.slots[i], () => tapCont(i), !CHESTS.has(te.t) && te.t !== B.TSTATION && i === 1 ? ";border-color:#5fe08a" : ""));
     box.appendChild(g);
   }
 }
@@ -2541,7 +2541,7 @@ addEventListener("visibilitychange", () => { if (document.hidden && G.running) s
 addEventListener("beforeunload", () => { if (G.running) saveGame(); });
 if (!loadSave()) $("bPlay").textContent = "▶ Играть (новый мир)";
 requestAnimationFrame(frame);
-window.__g = { MELT, TMAT, HEAD, TOOLID, saveGame, loadSave, countItem, RECIPES, allItemIds, doBreak, reactorBoom, radTick, hazFrac, tapCont, slotTap, startResearch, openResTable, RESEARCH, TILE, atlasCanvas, BD, genTile, itemIcon, BELTV, castDo, TOOL, wear, durMax, MATRIX, matrixStart, matrixMatch, matrixTick, get mx() { return G.mx; }, NODES, nodeAt, nodeRay, ARR, remoteMobs, setCont: (k) => { cont = { key: k }; }, TE, newTE, teTick, TEDEF, G2: G, mobs, trySpawn, damagePlayer, die, updateStats, sfx, NET, asp, RECIPES, G, P, inv, input, B, I, setBlock, blockAt, startWorld, openPanel, closePanel, useBlock, raycast, addItem, get sel() { return selSlot; }, look, aspJars, resOk, AV, spendAsp, jarAdd, RESEARCH, doCraft, canCraft, refreshRecipes };
+window.__g = { TEDEF, MELT, TMAT, HEAD, TOOLID, saveGame, loadSave, countItem, RECIPES, allItemIds, doBreak, reactorBoom, radTick, hazFrac, tapCont, slotTap, startResearch, openResTable, RESEARCH, TILE, atlasCanvas, BD, genTile, itemIcon, BELTV, castDo, TOOL, wear, durMax, MATRIX, matrixStart, matrixMatch, matrixTick, get mx() { return G.mx; }, NODES, nodeAt, nodeRay, ARR, remoteMobs, setCont: (k) => { cont = { key: k }; }, TE, newTE, teTick, TEDEF, G2: G, mobs, trySpawn, damagePlayer, die, updateStats, sfx, NET, asp, RECIPES, G, P, inv, input, B, I, setBlock, blockAt, startWorld, openPanel, closePanel, useBlock, raycast, addItem, get sel() { return selSlot; }, look, aspJars, resOk, AV, spendAsp, jarAdd, RESEARCH, doCraft, canCraft, refreshRecipes };
 </script>
 </body>
 </html>
