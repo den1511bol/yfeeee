@@ -699,7 +699,7 @@ function iconCanvasFor(id) { const c = document.createElement("canvas"); c.width
 
 // ---------- WebGL ----------
 const canvas = $("gl");
-const GFXP = [{ n: "Экономия", min: .4, max: .7, st: .55, rd: 3 }, { n: "Баланс", min: .5, max: .9, st: .7, rd: 4 }, { n: "Качество", min: .65, max: 1, st: .9, rd: 5 }];
+const GFXP = [{ n: "Экономия", min: .5, max: .8, st: .65, rd: 3 }, { n: "Баланс", min: .65, max: 1, st: .85, rd: 4 }, { n: "Качество", min: .8, max: 1, st: 1, rd: 5 }];
 const GFX = (() => { let o = {}; try { o = JSON.parse(localStorage.getItem("yfecraft_gfx") || "{}"); } catch (e) {} return { q: o.q === 0 || o.q === 2 ? o.q : 1, aa: o.aa !== false }; })();
 const gfxSave = () => { try { localStorage.setItem("yfecraft_gfx", JSON.stringify(GFX)); } catch (e) {} };
 const gl = canvas.getContext("webgl", { antialias: GFX.aa, alpha: false, powerPreference: "high-performance" });
@@ -719,7 +719,9 @@ function p2xf(sx, sy, sz, lx, ly, lz, yaw, ctr) { gl.uniform3f(L2.sc, sx, sy, sz
 const atlasTex = gl.createTexture();
 gl.bindTexture(gl.TEXTURE_2D, atlasTex);
 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, atlasCanvas);
-gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+gl.generateMipmap(gl.TEXTURE_2D);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+{ const an = gl.getExtension("EXT_texture_filter_anisotropic") || gl.getExtension("WEBKIT_EXT_texture_filter_anisotropic"); if (an) gl.texParameterf(gl.TEXTURE_2D, an.TEXTURE_MAX_ANISOTROPY_EXT, Math.min(4, gl.getParameter(an.MAX_TEXTURE_MAX_ANISOTROPY_EXT))); }
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 gl.enable(gl.DEPTH_TEST); gl.enable(gl.CULL_FACE); gl.cullFace(gl.BACK); gl.frontFace(gl.CCW);
 const cubeBuf = gl.createBuffer(), lineBuf = gl.createBuffer();
@@ -1278,7 +1280,9 @@ function stepPlayer(dt) {
   if (P.fly && !canFly()) P.fly = false;
   const inW0 = blockAt(Math.floor(P.x), Math.floor(P.y + .4), Math.floor(P.z)) === B.WATER; if (inW0 !== P.inW) { if (inW0) sfx("splash"); P.inW = inW0; } P.impact = 0; const hitPrev = P.hit; P.hit = false; P.hitPrev = hitPrev;
   const f = input.move.f, s = input.move.s;
-  const sp = (P.fly ? 11 : 4.4) * ((hasRing(I.RING_SPEED) || G.buf.speed > 0) ? 1.35 : 1), cy = Math.cos(P.yaw), sy = Math.sin(P.yaw);
+  if (f > .88 && !P.fly && !P.inW) P.spT = (P.spT || 0) + dt; else if (f < .5) { P.spT = 0; } P.sprint = (P.spT || 0) > .45;
+  P.fov = (P.fov || 0) + ((P.sprint ? .09 : 0) - (P.fov || 0)) * Math.min(1, dt * 8);
+  const sp = (P.fly ? 11 : 4.4) * ((hasRing(I.RING_SPEED) || G.buf.speed > 0) ? 1.35 : 1) * (P.sprint ? 1.32 : 1), cy = Math.cos(P.yaw), sy = Math.sin(P.yaw);
   const dx = (-sy * f + cy * s) * sp, dz = (-cy * f - sy * s) * sp;
   P.vx = dx; P.vz = dz;
   { const bb = blockAt(Math.floor(P.x), Math.floor(P.y - .05), Math.floor(P.z)); if (bb >= B.BELT && bb <= B.BELT_N && !P.fly) { const bd = BELTV[bb - B.BELT]; P.vx += bd[0] * 2.6; P.vz += bd[1] * 2.6; } }
@@ -1295,8 +1299,9 @@ function stepPlayer(dt) {
     P.x = o.x; P.y = o.y; P.z = o.z; return true;
   };
   const sub = Math.max(1, Math.ceil(Math.max(Math.abs(P.vx), Math.abs(P.vy), Math.abs(P.vz)) * dt / .3));
-  P.ground = false;
+  const wasG = P.ground; P.ground = false;
   for (let i = 0; i < sub; i++) { mv("x", P.vx * dt / sub); mv("z", P.vz * dt / sub); mv("y", P.vy * dt / sub); }
+  if (P.hit && wasG && !P.fly && !P.inW && (f || s) && P.vy <= 0 && !input.sneak) { const ln = Math.hypot(dx, dz) || 1, ax = dx / ln * .45, az = dz / ln * .45; if (!collides(P.x + ax, P.y + 1.02, P.z + az) && collides(P.x + ax, P.y + .3, P.z + az)) { P.vy = 7.7; } }
   if (P.fly && P.ground) P.fly = false;
   if (P.impact < -14 && !P.fly && !P.inW && !hasRing(I.RING_FEATHER)) damagePlayer(Math.floor(-P.impact - 13));
   if (P.ground && !P.fly && Math.hypot(P.vx, P.vz) > 1) { P.stepT = (P.stepT || 0) + dt * Math.hypot(P.vx, P.vz); if (P.stepT > 2.4) { P.stepT = 0; sfx(stepKind()); } }
@@ -2452,7 +2457,7 @@ function frame(now) {
   gl.viewport(0, 0, canvas.width, canvas.height);
   gl.clearColor(sky[0], sky[1], sky[2], 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   const sh = G.shake > 0 ? G.shake * .012 : 0, f = look(), asp = canvas.width / canvas.height; if (sh) { f[0] += (Math.random() - .5) * sh; f[1] += (Math.random() - .5) * sh; f[2] += (Math.random() - .5) * sh; }
-  const vp = mul(perspective(1.15, asp, .08, 400), viewRot(f[0], f[1], f[2]));
+  const vp = mul(perspective(1.15 + (P.fov || 0), asp, .08, 400), viewRot(f[0], f[1], f[2]));
   const cam = [P.x, P.y + EYE, P.z];
   drawSky(vp, cam, sun, sky, camW);
   gl.useProgram(P1);
@@ -2571,7 +2576,7 @@ addEventListener("visibilitychange", () => { if (document.hidden && G.running) s
 addEventListener("beforeunload", () => { if (G.running) saveGame(); });
 if (!loadSave()) $("bPlay").textContent = "▶ Играть (новый мир)";
 requestAnimationFrame(frame);
-window.__g = { SOLID, BD, TEDEF, MELT, TMAT, HEAD, TOOLID, saveGame, loadSave, countItem, RECIPES, allItemIds, doBreak, reactorBoom, radTick, hazFrac, tapCont, slotTap, startResearch, openResTable, RESEARCH, TILE, atlasCanvas, BD, genTile, itemIcon, BELTV, castDo, TOOL, wear, durMax, MATRIX, matrixStart, matrixMatch, matrixTick, get mx() { return G.mx; }, NODES, nodeAt, nodeRay, ARR, remoteMobs, setCont: (k) => { cont = { key: k }; }, TE, newTE, teTick, TEDEF, G2: G, mobs, trySpawn, damagePlayer, die, updateStats, sfx, NET, asp, RECIPES, G, P, inv, input, B, I, setBlock, blockAt, startWorld, openPanel, closePanel, useBlock, raycast, addItem, get sel() { return selSlot; }, look, aspJars, resOk, AV, spendAsp, jarAdd, RESEARCH, doCraft, canCraft, refreshRecipes };
+window.__g = { stepPlayer, input, SOLID, BD, TEDEF, MELT, TMAT, HEAD, TOOLID, saveGame, loadSave, countItem, RECIPES, allItemIds, doBreak, reactorBoom, radTick, hazFrac, tapCont, slotTap, startResearch, openResTable, RESEARCH, TILE, atlasCanvas, BD, genTile, itemIcon, BELTV, castDo, TOOL, wear, durMax, MATRIX, matrixStart, matrixMatch, matrixTick, get mx() { return G.mx; }, NODES, nodeAt, nodeRay, ARR, remoteMobs, setCont: (k) => { cont = { key: k }; }, TE, newTE, teTick, TEDEF, G2: G, mobs, trySpawn, damagePlayer, die, updateStats, sfx, NET, asp, RECIPES, G, P, inv, input, B, I, setBlock, blockAt, startWorld, openPanel, closePanel, useBlock, raycast, addItem, get sel() { return selSlot; }, look, aspJars, resOk, AV, spendAsp, jarAdd, RESEARCH, doCraft, canCraft, refreshRecipes };
 </script>
 </body>
 </html>
