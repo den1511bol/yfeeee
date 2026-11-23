@@ -847,6 +847,7 @@ function buildMesh(c) {
   for (let y = 0; y < WH; y++) for (let z = 0; z < CS; z++) for (let x = 0; x < CS; x++) {
     const id = bl[cidx(x, y, z)]; if (id === 0) continue;
     const d = BD[id], isW = id === B.WATER, T = isW ? W : S;
+    if (SLABS.has(id)) { const t1 = TILE[d.tiles[2]]; emitBox(X, x, y, z, 0, 0, 0, 1, .5, 1, (t1 % AT) * inv, Math.floor(t1 / AT) * inv, inv); continue; }
     if (MODELED.has(id)) {
       const tt0 = TILE[d.tiles[0]], ts0 = TILE[d.tiles[2]], tA = [(tt0 % AT) * inv, Math.floor(tt0 / AT) * inv], tB = [(ts0 % AT) * inv, Math.floor(ts0 / AT) * inv];
       emitBox(X, x, y, z, 0, 0, 0, 1, .13, 1, tA[0], tA[1], inv); emitBox(X, x, y, z, .06, .13, .06, .94, .82, .94, tB[0], tB[1], inv); emitBox(X, x, y, z, .015, .82, .015, .985, 1, .985, tA[0], tA[1], inv);
@@ -1281,7 +1282,7 @@ const panelOpen = () => !$("inv").classList.contains("hidden");
 const P = { x: 8.5, y: 40, z: 8.5, vx: 0, vy: 0, vz: 0, yaw: 0, pitch: 0, ground: false, fly: false };
 const PW = .3, PH = 1.8, EYE = 1.62;
 function collides(x, y, z) {
-  for (let bx = Math.floor(x - PW); bx <= Math.floor(x + PW); bx++) for (let by = Math.floor(y); by <= Math.floor(y + PH); by++) for (let bz = Math.floor(z - PW); bz <= Math.floor(z + PW); bz++) if (isSolidAt(bx, by, bz)) return true;
+  for (let bx = Math.floor(x - PW); bx <= Math.floor(x + PW); bx++) for (let by = Math.floor(y); by <= Math.floor(y + PH); by++) for (let bz = Math.floor(z - PW); bz <= Math.floor(z + PW); bz++) if (isSolidAt(bx, by, bz)) { if (by === Math.floor(y) && SLABS.has(blockAt(bx, by, bz)) && y >= by + .5) continue; return true; }
   return false;
 }
 const BELTV = [[1, 0], [-1, 0], [0, 1], [0, -1]];
@@ -1786,7 +1787,7 @@ document.addEventListener("pointerup", (e) => dragEnd(e, false), true); document
 document.addEventListener("click", (e) => { if (performance.now() - (G.openT || 0) < 450 && e.target.closest && e.target.closest("#inv")) { e.stopImmediatePropagation(); e.preventDefault(); return; } if (e.target.closest && e.target.closest(".big,.craft,.slot,.btn,.x,#chips button")) sfx("click"); }, true);
 
 // ---------- IC2: ядерный реактор, уран, радиация (Разработчик: @yfeeeee) ----------
-Object.assign(I, { CELL_L: 262, E_DRILL: 260, E_SAW: 261, U_CELL: 250, U_DEP: 251, COOLANT: 252, VENT: 253, RVENT: 254, REFLECT: 255, EXCH: 256, RAW_URAN: 257, GEIGER: 258, ING_URAN: 259 }); Object.assign(B, { CRANK: 71, COMPRESSOR: 70, URANIUM: 63, REACTOR: 64, CHARGER: 65, MFE: 66, SHAFT: 67, COGWHEEL: 68, TSTATION: 69 });
+Object.assign(I, { CELL_L: 262, E_DRILL: 260, E_SAW: 261, U_CELL: 250, U_DEP: 251, COOLANT: 252, VENT: 253, RVENT: 254, REFLECT: 255, EXCH: 256, RAW_URAN: 257, GEIGER: 258, ING_URAN: 259 }); Object.assign(B, { SLAB_PL: 72, SLAB_CO: 73, SLAB_SB: 74, SLAB_ST: 75, CRANK: 71, COMPRESSOR: 70, URANIUM: 63, REACTOR: 64, CHARGER: 65, MFE: 66, SHAFT: 67, COGWHEEL: 68, TSTATION: 69 });
 def(B.TSTATION, "Верстак инструментов", ["planks", "table_top", "table_side"], 3, { tool: 2 }); ITEMNAME[B.TSTATION] = "Верстак инструментов";
 DESC[B.TSTATION] = "Верстак инструментов (Tinkers): положи сломанный инструмент в левый слот, а в правый — слитки его материала (медь/бронза/железо/золото/тауметал). Каждый слиток чинит 25% прочности.";
 const REPAIRM = () => ({ [I.ING_COPPER]: 0, [I.ING_BRONZE]: 1, [I.ING_IRON]: 2, [I.ING_GOLD]: 3, [I.ING_THAUM]: 4 });
@@ -1823,6 +1824,12 @@ const COMPM = { [B.COBBLE]: [B.STONE, 1], [B.STONE]: [B.STONEBRICK, 1] };
 MACHS.add(B.COMPRESSOR); TEDEF[B.COMPRESSOR] = { slots: 2, energy: true, accept: (i, id) => i === 0 && !!COMPM[id], rate: 20 };
 RECIPES.push(R(B.COMPRESSOR, 1, { [B.PRESS]: 1, [I.PLATE_IRON]: 3, [B.BATTERY]: 1 }, "table"));
 LIGHTSRC[B.REACTOR] = 7;
+const SLABS = new Set();
+for (const [sl, base, nm] of [["SLAB_PL", "PLANKS", "Доски"], ["SLAB_CO", "COBBLE", "Булыжник"], ["SLAB_SB", "STONEBRICK", "Каменные кирпичи"], ["SLAB_ST", "STONE", "Камень"]]) {
+  const id = B[sl]; def(id, "Плита: " + nm.toLowerCase(), BD[B[base]].tiles, BD[B[base]].hard * .6, { tool: BD[B[base]].tool, need: BD[B[base]].need }); OPAQUE[id] = 0; SLABS.add(id); ITEMNAME[id] = "Плита: " + nm.toLowerCase();
+  DESC[id] = "Плита — половина блока. Можно ходить по ступенькам, не прыгая. Крафт: 3 блока → 6 плит.";
+  RECIPES.push(R(id, 6, { [B[base]]: 3 }, "table"));
+}
 for (const k of ["GENERATOR", "MACERATOR", "SMELTER", "PRESS", "MILL", "COMPRESSOR", "CHARGER", "BATTERY", "MFE", "REACTOR"]) if (B[k]) { MODELED.add(B[k]); OPAQUE[B[k]] = 0; }
 def(B.CRANK, "Рукоятка (Create)", ["shaft_top", "shaft_top", "shaft_side"], 2, { tool: 2 }); ITEMNAME[B.CRANK] = "Рукоятка (Create)"; ENERGY[B.CRANK] = 1;
 DESC[B.CRANK] = "Рукоятка: нажимай на неё — раскручивает вал и даёт 12 EU/с на 8 секунд. Подключается к энергосети (валы, кабели).";
