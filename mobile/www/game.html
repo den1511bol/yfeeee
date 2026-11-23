@@ -45,6 +45,7 @@ canvas#gl{position:fixed;inset:0;width:100%;height:100%;display:block}
 #stats{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(68px + env(safe-area-inset-bottom));display:flex;gap:10px;pointer-events:none}
 .bar{position:relative;width:min(34vw,160px);height:15px;border-radius:8px;background:rgba(0,0,0,.55);border:1.5px solid #fff4;overflow:hidden}.bar i{display:block;height:100%}.bar span{position:absolute;inset:0;text-align:center;font-size:11px;font-weight:800;line-height:15px;text-shadow:0 1px 2px #000}
 #rd i{background:linear-gradient(90deg,#7dff4a,#e6ff3a)}#hp i{background:linear-gradient(90deg,#ff4b4b,#ff8a8a)}#fd i{background:linear-gradient(90deg,#ff9a2e,#ffd25a)}
+#flash{position:fixed;inset:0;background:radial-gradient(ellipse at center,#fff,#ffd27a 55%,#ff6a00);opacity:0;pointer-events:none;z-index:6}
 #hurt{position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 40%,rgba(255,0,0,.55));opacity:0;pointer-events:none;transition:opacity .35s;z-index:5}
 #water{position:fixed;inset:0;background:rgba(30,90,200,.28);pointer-events:none;z-index:4;display:none}
 #toast{position:absolute;left:50%;top:18%;transform:translateX(-50%);padding:8px 14px;border-radius:12px;background:rgba(13,18,32,.85);border:1px solid var(--line);font-weight:600;opacity:0;transition:opacity .25s}
@@ -129,7 +130,7 @@ h1{margin:0 0 4px;font-size:34px;letter-spacing:.5px;background:linear-gradient(
     </div>
   </div>
 </div>
-<div id="hurt"></div><div id="water"></div>
+<div id="hurt"></div><div id="flash"></div><div id="water"></div>
 <div id="dead" class="overlay hidden" style="z-index:30;background:rgba(80,0,0,.78)"><div class="card" style="text-align:center"><h1 style="font-size:30px">Ты погиб</h1><button class="big main" id="bResp">Возродиться</button></div></div>
 <div id="title" class="overlay">
   <div class="card menu">
@@ -238,7 +239,8 @@ const FOOD = { [I.RAW_MEAT]: 2, [I.COOKED]: 8, [I.APPLE]: 4 };
 const SPEED = [1, 3, 5, 8, 12, 22];
 // tiles: [верх, низ, бок]
 const BD = {};
-function def(id, name, tiles, hard, o = {}) { BD[id] = Object.assign({ name, tiles, hard, opaque: true, tool: null, need: 0, drop: id }, o); }
+const OPAQUE = new Uint8Array(256), SOLID = new Uint8Array(256);
+function def(id, name, tiles, hard, o = {}) { BD[id] = Object.assign({ name, tiles, hard, opaque: true, tool: null, need: 0, drop: id }, o); OPAQUE[id] = BD[id].opaque ? 1 : 0; SOLID[id] = 1; }
 def(B.GRASS, "Трава", ["grass_top", "dirt", "grass_side"], .9, { drop: B.DIRT });
 def(B.DIRT, "Земля", ["dirt", "dirt", "dirt"], .8);
 def(B.STONE, "Камень", ["stone", "stone", "stone"], 6, { tool: 1, need: 1, drop: B.COBBLE });
@@ -328,7 +330,6 @@ const iname = (id) => (BD[id] ? BD[id].name : ITEMNAME[id] || "?");
 const isBlockItem = (id) => id > 0 && id < 100;
 const maxStack = (id) => (TOOL[id] ? 1 : 64);
 const LIGHTSRC = { [B.TORCH]: 9, [B.LAMP]: 13 }; const LIGHTS = new Map();
-const OPAQUE = new Uint8Array(256), SOLID = new Uint8Array(256);
 for (const k in BD) { OPAQUE[k] = BD[k].opaque ? 1 : 0; SOLID[k] = 1; }
 SOLID[B.WATER] = 0; SOLID[B.CABLE] = 0; SOLID[B.TORCH] = 0; SOLID[B.FLOWER_R] = 0; SOLID[B.BED] = 1; SOLID[B.FLOWER_Y] = 0; SOLID[B.ASPIPE] = 0; SOLID[B.MECABLE] = 0;
 
@@ -1837,6 +1838,7 @@ function reactorStep(te) {
 const RADI = { [I.RAW_URAN]: .05, [I.ING_URAN]: .08, [I.U_CELL]: .25, [I.U_DEP]: .4, [B.URANIUM]: .06 };
 G.rad = 0; G.radZones = [];
 const hazFrac = () => { let n = 0; for (const a of G.armor) if (a && a.id >= 218 && a.id < 222) n++; return n / 4; };
+const hasGeiger = () => { for (const s of inv) if (s && s.id === I.GEIGER) return true; return false; };
 function radTick(dt) {
   if (G.creative || G.dead) { G.rad = 0; G.radRate = 0; return; }
   let rate = 0; for (const s of inv) if (s && RADI[s.id]) rate += RADI[s.id] * Math.min(s.n, 8);
@@ -1846,15 +1848,31 @@ function radTick(dt) {
   G.radT = (G.radT || 0) + dt;
   if (G.rad > 50 && G.radT > (G.rad > 80 ? 2 : 5)) { G.radT = 0; damagePlayer(1); }
   if (G.rad > 25) G.hunger = Math.max(0, G.hunger - dt * .05);
-  const rb = $("rd"); if (rb) { rb.style.display = G.rad > 1 || rate > 0 ? "" : "none"; rb.firstChild.style.width = G.rad + "%"; rb.lastChild.textContent = "☢ " + Math.round(G.rad); }
-  if (heldId() === I.GEIGER) { G.gT = (G.gT || 0) - dt; const mean = .15 + rate * 3; if (G.gT <= 0) { G.gT = Math.max(.04, 1 / (mean * (.5 + Math.random()))); sfx("geiger"); } $("hint2") && 0; G.geigerTxt = "☢ " + rate.toFixed(2) + " /с"; toastGeiger(); }
+  const rb = $("rd"); if (rb) { rb.style.display = G.rad > 1 || rate > 0 ? "" : "none"; rb.firstChild.style.width = G.rad + "%"; rb.lastChild.textContent = "☢ " + Math.round(G.rad) + (hasGeiger() ? " · " + rate.toFixed(1) + "/с" : ""); }
+  if (hasGeiger()) { G.gT = (G.gT || 0) - dt; const mean = .15 + rate * 3; if (G.gT <= 0) { G.gT = Math.max(.04, 1 / (mean * (.5 + Math.random()))); sfx("geiger"); } $("hint2") && 0; G.geigerTxt = "☢ " + rate.toFixed(2) + " /с"; toastGeiger(); }
 }
 function toastGeiger() { const t = $("toast"); if (heldId() === I.GEIGER && !panelOpen()) { t.textContent = G.geigerTxt + " · доза " + Math.round(G.rad); t.style.opacity = 1; clearTimeout(toast.t); toast.t = setTimeout(() => (t.style.opacity = 0), 400); } }
 function reactorBoom(te) {
-  const q = te.k.split(",").map(Number), R = 5; sfx("boom"); fxBurst(q[0] + .5, q[1] + .5, q[2] + .5, 80, [1, .7, .2], 9, 1.4, .25);
+  const q = te.k.split(",").map(Number), R = 5; sfx("boom"); const cx = q[0] + .5, cy = q[1] + .5, cz = q[2] + .5;
+  fxBurst(cx, cy, cz, 220, [1, .72, .2], 16, 1.6, .3, .4); fxBurst(cx, cy, cz, 120, [1, .35, .08], 11, 1.2, .35, .3);
+  for (let i = 0; i < 70; i++) { const a = i / 70 * 6.283; fxOne(cx, cy - .3, cz, Math.cos(a) * 15, .6, Math.sin(a) * 15, .9, [1, .9, .6], .28, 0, 1); }
+  for (let i = 0; i < 90; i++) fxOne(cx + (Math.random() - .5) * 3, cy + Math.random() * 2, cz + (Math.random() - .5) * 3, (Math.random() - .5) * 2.5, 4 + Math.random() * 6, (Math.random() - .5) * 2.5, 3 + Math.random() * 3, [.3 + Math.random() * .1, .3, .3], .6 + Math.random() * .5, -.3, 1);
+  const dpp = Math.hypot(cx - P.x, cz - P.z); G.shake = Math.max(G.shake || 0, Math.max(0, 1 - dpp / 40) * 2); G.flash = Math.max(G.flash || 0, Math.max(0, 1 - dpp / 50));
   for (let x = -R; x <= R; x++) for (let y = -R; y <= R; y++) for (let z = -R; z <= R; z++) { const d = Math.hypot(x, y, z); if (d > R || Math.random() > 1.1 - d / R * .7) continue; const b = blockAt(q[0] + x, q[1] + y, q[2] + z); if (b > 0 && b !== B.BEDROCK && BD[b]) { TE.delete((q[0] + x) + "," + (q[1] + y) + "," + (q[2] + z)); setBlock(q[0] + x, q[1] + y, q[2] + z, 0); } }
   TE.delete(te.k); G.radZones.push({ x: q[0] + .5, y: q[1], z: q[2] + .5, r: 16, t: 420 });
   const dp = Math.hypot(q[0] - P.x, q[1] - P.y, q[2] - P.z); if (dp < 12) damagePlayer(Math.round(18 * (1 - dp / 12))); toast("☢ Реактор взорвался! Зона заражена на 7 минут");
+}
+function reactorFx(dt) {
+  G.rfT = (G.rfT || 0) - dt; if (G.rfT > 0) return; G.rfT = .08;
+  for (const [k, t] of TE) if (t.t === B.REACTOR && t.freq >= 2) {
+    const q = k.split(",").map(Number); if (Math.hypot(q[0] - P.x, q[2] - P.z) > 36) continue;
+    const heat = (t.p || 0) / 10000, cx = q[0] + .5, cy = q[1] + 1.02, cz = q[2] + .5;
+    if (Math.random() < .5) fxOne(cx + (Math.random() - .5) * .8, cy, cz + (Math.random() - .5) * .8, (Math.random() - .5) * .3, .9 + Math.random() * .8, (Math.random() - .5) * .3, 1.1 + Math.random() * .8, [.45, 1, .5], .07, -.35, 1);
+    if (heat > .35 && Math.random() < heat) fxOne(cx + (Math.random() - .5) * .9, cy + .1, cz + (Math.random() - .5) * .9, (Math.random() - .5) * .5, 1.2 + Math.random(), (Math.random() - .5) * .5, 1.6 + Math.random(), [.38, .38, .4], .22 + Math.random() * .12, -.25, 1);
+    if (heat > .6 && Math.random() < heat) fxOne(cx + (Math.random() - .5), cy, cz + (Math.random() - .5), (Math.random() - .5) * 1.4, 2 + Math.random() * 2, (Math.random() - .5) * 1.4, .8 + Math.random() * .5, [1, .55 + Math.random() * .3, .15], .1, 1, 1);
+  }
+  if (G.shake > 0) G.shake = Math.max(0, G.shake - .1);
+  const fl = $("flash"); if (fl && G.flash > 0) { G.flash = Math.max(0, G.flash - .05); fl.style.opacity = G.flash; }
 }
 function reactorWatch(dt) {
   G.rwT = (G.rwT || 0) - dt; if (G.rwT > 0) return; G.rwT = 1;
@@ -2251,7 +2269,8 @@ function drawNodes(vp, cam) {
   p2xf(1, 1, 1, 0, 0, 0, 0, 0); gl.disableVertexAttribArray(L2.pos); gl.enable(gl.CULL_FACE);
 }
 const FX = [];
-function fxBurst(x, y, z, n, col, spd, life, size) { for (let i = 0; i < n && FX.length < 160; i++) FX.push({ x, y, z, vx: (Math.random() - .5) * spd, vy: Math.random() * spd * .8, vz: (Math.random() - .5) * spd, life: life * (.6 + Math.random() * .6), col, s: size }); }
+function fxBurst(x, y, z, n, col, spd, life, size, g) { for (let i = 0; i < n && FX.length < 700; i++) { const l = life * (.6 + Math.random() * .6); FX.push({ x, y, z, vx: (Math.random() - .5) * spd, vy: Math.random() * spd * .8, vz: (Math.random() - .5) * spd, life: l, l0: l, col, s: size, g: g === undefined ? 1 : g }); } }
+function fxOne(x, y, z, vx, vy, vz, life, col, size, g, shr) { if (FX.length < 700) FX.push({ x, y, z, vx, vy, vz, life, l0: life, col, s: size, g, shr }); }
 function fxBolt(x0, y0, z0, x1, y1, z1) { const n = 16; for (let i = 0; i <= n && FX.length < 160; i++) { const t = i / n; FX.push({ x: x0 + (x1 - x0) * t, y: y0 + (y1 - y0) * t, z: z0 + (z1 - z0) * t, vx: 0, vy: .3, vz: 0, life: .25 + t * .15, col: i % 2 ? [1, .55, .1] : [1, .85, .3], s: .12 }); } fxBurst(x1, y1, z1, 14, [1, .5, .1], 5, .5, .1); }
 function drawArrows(cam) {
   gl.uniform4f(L2.col, .9, .85, .6, 1);
@@ -2263,8 +2282,8 @@ function drawFX(vp, cam, dt) {
   drawArrows(cam);
   for (let i = FX.length - 1; i >= 0; i--) {
     const p = FX[i]; p.life -= dt; if (p.life <= 0) { FX.splice(i, 1); continue; }
-    p.vy -= 12 * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt;
-    gl.uniform3f(L2.off, p.x - cam[0], p.y - cam[1], p.z - cam[2]); p2xf(p.s, p.s, p.s, -p.s / 2, 0, -p.s / 2, 0, 1); gl.uniform4f(L2.col, p.col[0], p.col[1], p.col[2], 1); gl.drawArrays(gl.TRIANGLES, 0, 36);
+    p.vy -= 12 * (p.g === undefined ? 1 : p.g) * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt;
+    gl.uniform3f(L2.off, p.x - cam[0], p.y - cam[1], p.z - cam[2]); const ps = p.shr ? p.s * (.25 + .75 * Math.max(0, p.life / (p.l0 || 1))) : p.s; p2xf(ps, ps, ps, -ps / 2, 0, -ps / 2, 0, 1); gl.uniform4f(L2.col, p.col[0], p.col[1], p.col[2], 1); gl.drawArrays(gl.TRIANGLES, 0, 36);
   }
   p2xf(1, 1, 1, 0, 0, 0, 0, 0); gl.disableVertexAttribArray(L2.pos);
 }
@@ -2424,7 +2443,7 @@ function frame(now) {
   manageChunks(3);
   G.time = (G.time + dt / 600) % 1;
   const sun = clamp(Math.sin(G.time * 2 * Math.PI) * 1.6 + .25, 0, 1);
-  G.sun = sun; if (!paused) { survivalTick(dt, sun); ambTick(dt); radTick(dt); reactorWatch(dt); if (!NET.ws) teAdvance(dt); if (hasRing(I.RING_REGEN) && !G.creative && !G.dead) { G.ringT = (G.ringT || 0) + dt; if (G.ringT > 4) { G.ringT = 0; if (G.hp < 20) { G.hp++; updateStats(); } } } }
+  G.sun = sun; if (!paused) { survivalTick(dt, sun); ambTick(dt); radTick(dt); reactorWatch(dt); reactorFx(dt); if (!NET.ws) teAdvance(dt); if (hasRing(I.RING_REGEN) && !G.creative && !G.dead) { G.ringT = (G.ringT || 0) + dt; if (G.ringT > 4) { G.ringT = 0; if (G.hp < 20) { G.hp++; updateStats(); } } } }
   const day = [.55, .78, .96], night = [.03, .04, .1];
   for (let i = 0; i < 3; i++) sky[i] = lerp(night[i], day[i], sun);
   const nv = hasRing(I.RING_VISION) || G.buf.night > 0, light = nv ? Math.max(.38 + .62 * sun, .95) : .38 + .62 * sun;
@@ -2432,7 +2451,7 @@ function frame(now) {
   if (camW) { sky[0] = .08 * (.3 + sun); sky[1] = .22 * (.3 + sun); sky[2] = .5 * (.3 + sun); }
   gl.viewport(0, 0, canvas.width, canvas.height);
   gl.clearColor(sky[0], sky[1], sky[2], 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  const f = look(), asp = canvas.width / canvas.height;
+  const sh = G.shake > 0 ? G.shake * .012 : 0, f = look(), asp = canvas.width / canvas.height; if (sh) { f[0] += (Math.random() - .5) * sh; f[1] += (Math.random() - .5) * sh; f[2] += (Math.random() - .5) * sh; }
   const vp = mul(perspective(1.15, asp, .08, 400), viewRot(f[0], f[1], f[2]));
   const cam = [P.x, P.y + EYE, P.z];
   drawSky(vp, cam, sun, sky, camW);
@@ -2552,7 +2571,7 @@ addEventListener("visibilitychange", () => { if (document.hidden && G.running) s
 addEventListener("beforeunload", () => { if (G.running) saveGame(); });
 if (!loadSave()) $("bPlay").textContent = "▶ Играть (новый мир)";
 requestAnimationFrame(frame);
-window.__g = { TEDEF, MELT, TMAT, HEAD, TOOLID, saveGame, loadSave, countItem, RECIPES, allItemIds, doBreak, reactorBoom, radTick, hazFrac, tapCont, slotTap, startResearch, openResTable, RESEARCH, TILE, atlasCanvas, BD, genTile, itemIcon, BELTV, castDo, TOOL, wear, durMax, MATRIX, matrixStart, matrixMatch, matrixTick, get mx() { return G.mx; }, NODES, nodeAt, nodeRay, ARR, remoteMobs, setCont: (k) => { cont = { key: k }; }, TE, newTE, teTick, TEDEF, G2: G, mobs, trySpawn, damagePlayer, die, updateStats, sfx, NET, asp, RECIPES, G, P, inv, input, B, I, setBlock, blockAt, startWorld, openPanel, closePanel, useBlock, raycast, addItem, get sel() { return selSlot; }, look, aspJars, resOk, AV, spendAsp, jarAdd, RESEARCH, doCraft, canCraft, refreshRecipes };
+window.__g = { SOLID, BD, TEDEF, MELT, TMAT, HEAD, TOOLID, saveGame, loadSave, countItem, RECIPES, allItemIds, doBreak, reactorBoom, radTick, hazFrac, tapCont, slotTap, startResearch, openResTable, RESEARCH, TILE, atlasCanvas, BD, genTile, itemIcon, BELTV, castDo, TOOL, wear, durMax, MATRIX, matrixStart, matrixMatch, matrixTick, get mx() { return G.mx; }, NODES, nodeAt, nodeRay, ARR, remoteMobs, setCont: (k) => { cont = { key: k }; }, TE, newTE, teTick, TEDEF, G2: G, mobs, trySpawn, damagePlayer, die, updateStats, sfx, NET, asp, RECIPES, G, P, inv, input, B, I, setBlock, blockAt, startWorld, openPanel, closePanel, useBlock, raycast, addItem, get sel() { return selSlot; }, look, aspJars, resOk, AV, spendAsp, jarAdd, RESEARCH, doCraft, canCraft, refreshRecipes };
 </script>
 </body>
 </html>
