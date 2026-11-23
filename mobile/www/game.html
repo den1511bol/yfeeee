@@ -2533,7 +2533,7 @@ addEventListener("visibilitychange", () => { if (document.hidden && G.running) s
 addEventListener("beforeunload", () => { if (G.running) saveGame(); });
 if (!loadSave()) $("bPlay").textContent = "▶ Играть (новый мир)";
 requestAnimationFrame(frame);
-window.__g = { allItemIds, doBreak, reactorBoom, radTick, hazFrac, tapCont, slotTap, startResearch, openResTable, RESEARCH, TILE, atlasCanvas, BD, genTile, itemIcon, BELTV, castDo, TOOL, wear, durMax, MATRIX, matrixStart, matrixMatch, matrixTick, get mx() { return G.mx; }, NODES, nodeAt, nodeRay, ARR, remoteMobs, setCont: (k) => { cont = { key: k }; }, TE, newTE, teTick, TEDEF, G2: G, mobs, trySpawn, damagePlayer, die, updateStats, sfx, NET, asp, RECIPES, G, P, inv, input, B, I, setBlock, blockAt, startWorld, openPanel, closePanel, useBlock, raycast, addItem, get sel() { return selSlot; }, look, aspJars, resOk, AV, spendAsp, jarAdd, RESEARCH, doCraft, canCraft, refreshRecipes };
+window.__g = { saveGame, loadSave, countItem, RECIPES, allItemIds, doBreak, reactorBoom, radTick, hazFrac, tapCont, slotTap, startResearch, openResTable, RESEARCH, TILE, atlasCanvas, BD, genTile, itemIcon, BELTV, castDo, TOOL, wear, durMax, MATRIX, matrixStart, matrixMatch, matrixTick, get mx() { return G.mx; }, NODES, nodeAt, nodeRay, ARR, remoteMobs, setCont: (k) => { cont = { key: k }; }, TE, newTE, teTick, TEDEF, G2: G, mobs, trySpawn, damagePlayer, die, updateStats, sfx, NET, asp, RECIPES, G, P, inv, input, B, I, setBlock, blockAt, startWorld, openPanel, closePanel, useBlock, raycast, addItem, get sel() { return selSlot; }, look, aspJars, resOk, AV, spendAsp, jarAdd, RESEARCH, doCraft, canCraft, refreshRecipes };
 </script>
 </body>
 </html>
