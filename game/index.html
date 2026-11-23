@@ -1363,6 +1363,7 @@ function sfx(k) {
   else if (k === "research") { [392, 494, 587, 784, 988, 1175].forEach((f, i) => { T_(.9, f, f, .1, "sine", i * 120); T_(.7, f * 2, f * 2, .03, "triangle", i * 120 + 20); }); N_(1.1, 7000, 2500, .04, "highpass", 500); }
   else if (k === "bubble") { for (let i = 0; i < 7; i++) T_(.09, 180 + Math.random() * 260, 420 + Math.random() * 300, .1, "sine", i * (70 + Math.random() * 90)); N_(.5, 700, 300, .05, "lowpass", 0); }
   else if (k === "infuse") { sfxTone(1.6, 220, 1320, .1, "sine"); T_(1.6, 224, 1330, .07, "sine", 0); T_(1.2, 110, 440, .08, "triangle", 150); N_(1.5, 2000, 7000, .04, "bandpass", 0); }
+  else if (k === "crank") { for (let i = 0; i < 5; i++) { T_(.05, 520 - i * 25, 300, .06, "square", i * 70); N_(.04, 1800, 900, .03, "bandpass", i * 70); } T_(.4, 110, 90, .05, "triangle", 350); }
   else if (k === "chime") { [880, 1109, 1319].forEach((f, i) => T_(.6, f, f, .09, "sine", i * 90)); }
   else if (k === "geiger") { sfxNoise(.012, 6000, 3000, .22, "highpass"); }
   else if (k === "boom") { sfxNoise(1.4, 900, 40, .6, "lowpass"); sfxTone(1.2, 90, 25, .5, "sine"); N_(.8, 2500, 200, .3, "bandpass", 80); }
@@ -1530,7 +1531,7 @@ function useBlock() {
     if (hit.id === B.PEDESTAL) { if (te.slots[0]) { addItem(te.slots[0].id, te.slots[0].n); te.slots[0] = null; syncTE(te); refreshUI(); sfx("pop"); } return; }
     cont = { key: k }; openPanel("matrix"); return;
   }
-  if (hit.id === B.CRANK) { const k = hit.x + "," + hit.y + "," + hit.z; let te = TE.get(k); if (!te) { te = newTE(hit.id, k); TE.set(k, te); } te.cr = 8; sfx("click"); toast("Рукоятка вращается…"); return; }
+  if (hit.id === B.CRANK) { const k = hit.x + "," + hit.y + "," + hit.z; let te = TE.get(k); if (!te) { te = newTE(hit.id, k); TE.set(k, te); } te.cr = 8; sfx("crank"); toast("Рукоятка вращается…"); return; }
   if (TEDEF[hit.id]) { const k = hit.x + "," + hit.y + "," + hit.z; if (!TE.has(k)) TE.set(k, newTE(hit.id, k)); cont = { key: k }; openPanel(hit.id === B.TERMINAL ? "me" : hit.id === B.CRUCIBLE ? "cruc" : hit.id === B.DRIVE ? "drive" : hit.id === B.QBRIDGE ? "qb" : hit.id === B.JAR ? "jar" : hit.id === B.SMELTERY ? "smelt" : hit.id === B.TANK ? "tank" : hit.id === B.CAST ? "cast" : "cont"); return; }
   if (isWand(heldId())) {
     const big = heldId() === I.WAND2, rr = big ? 1 : 0; let n = 0;
