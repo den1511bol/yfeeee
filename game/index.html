@@ -706,14 +706,14 @@ const gl = canvas.getContext("webgl", { antialias: GFX.aa, alpha: false, powerPr
 function sh_(type, src) { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; }
 function prog(vs, fs) { const p = gl.createProgram(); gl.attachShader(p, sh_(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh_(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(p); if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p)); return p; }
 const P1 = prog(
-  "attribute vec4 a_pos;attribute vec2 a_uv;varying float v_sky;varying float v_l;uniform mat4 u_vp;uniform vec3 u_off;uniform vec2 u_fog;varying vec2 v_uv;varying float v_sh;varying float v_f;" +
-  "void main(){vec3 p=a_pos.xyz+u_off;gl_Position=u_vp*vec4(p,1.0);float ur=a_uv.x*65535.0;float fl=mod(floor(ur+0.5),2.0);v_uv=vec2((ur-fl)/65535.0,a_uv.y);v_sky=fl;float hi=floor(a_pos.w/16.0+0.001);v_sh=hi/15.0;v_l=(a_pos.w-hi*16.0)/15.0;v_f=clamp((length(p)-u_fog.x)/(u_fog.y-u_fog.x),0.0,1.0);}",
-  "precision mediump float;uniform sampler2D u_tex;uniform float u_light;uniform float u_cave;uniform float u_alpha;uniform vec3 u_sky;varying float v_sky;varying float v_l;varying vec2 v_uv;varying float v_sh;varying float v_f;" +
-  "void main(){vec4 c=texture2D(u_tex,v_uv);if(c.a<0.5)discard;float L=max(mix(u_cave,u_light,v_sky),v_l);vec3 col=c.rgb*v_sh*L;gl_FragColor=vec4(mix(col,u_sky,v_f),u_alpha);}");
+  "attribute vec4 a_pos;attribute vec2 a_uv;uniform vec3 u_cam;uniform float u_t;uniform float u_wv;varying float v_br;varying float v_sky;varying float v_l;uniform mat4 u_vp;uniform vec3 u_off;uniform vec2 u_fog;varying vec2 v_uv;varying float v_sh;varying float v_f;" +
+  "void main(){vec3 p=a_pos.xyz+u_off;vec3 wp=p+u_cam;p.y+=u_wv*(sin(wp.x*1.7+u_t*1.6)*cos(wp.z*1.3+u_t*1.2)*0.045-0.06);v_br=1.0+u_wv*0.1*sin(wp.x*3.1+wp.z*2.3+u_t*2.2);gl_Position=u_vp*vec4(p,1.0);float ur=a_uv.x*65535.0;float fl=mod(floor(ur+0.5),2.0);v_uv=vec2((ur-fl)/65535.0,a_uv.y);v_sky=fl;float hi=floor(a_pos.w/16.0+0.001);v_sh=hi/15.0;v_l=(a_pos.w-hi*16.0)/15.0;v_f=clamp((length(p)-u_fog.x)/(u_fog.y-u_fog.x),0.0,1.0);}",
+  "precision mediump float;varying float v_br;uniform sampler2D u_tex;uniform float u_light;uniform float u_cave;uniform float u_alpha;uniform vec3 u_sky;varying float v_sky;varying float v_l;varying vec2 v_uv;varying float v_sh;varying float v_f;" +
+  "void main(){vec4 c=texture2D(u_tex,v_uv);if(c.a<0.5)discard;float L=max(mix(u_cave,u_light,v_sky),v_l);vec3 col=c.rgb*v_sh*L*v_br;gl_FragColor=vec4(mix(col,u_sky,v_f),u_alpha);}");
 const P2 = prog(
   "attribute vec3 a_pos;uniform mat4 u_vp;uniform vec3 u_off;uniform vec3 u_sc;uniform vec3 u_loc;uniform float u_yaw;uniform float u_ctr;void main(){vec3 q=(a_pos-u_ctr*vec3(.5,0.,.5))*u_sc+u_loc;float c=cos(u_yaw),s=sin(u_yaw);vec3 r=vec3(q.x*c+q.z*s,q.y,-q.x*s+q.z*c);gl_Position=u_vp*vec4(r+u_off,1.0);}",
   "precision mediump float;uniform vec4 u_col;void main(){gl_FragColor=u_col;}");
-const L1 = { pos: gl.getAttribLocation(P1, "a_pos"), uv: gl.getAttribLocation(P1, "a_uv"), vp: gl.getUniformLocation(P1, "u_vp"), off: gl.getUniformLocation(P1, "u_off"), fog: gl.getUniformLocation(P1, "u_fog"), tex: gl.getUniformLocation(P1, "u_tex"), light: gl.getUniformLocation(P1, "u_light"), sky: gl.getUniformLocation(P1, "u_sky"), alpha: gl.getUniformLocation(P1, "u_alpha"), cave: gl.getUniformLocation(P1, "u_cave") };
+const L1 = { cam: gl.getUniformLocation(P1, "u_cam"), t: gl.getUniformLocation(P1, "u_t"), wv: gl.getUniformLocation(P1, "u_wv"), pos: gl.getAttribLocation(P1, "a_pos"), uv: gl.getAttribLocation(P1, "a_uv"), vp: gl.getUniformLocation(P1, "u_vp"), off: gl.getUniformLocation(P1, "u_off"), fog: gl.getUniformLocation(P1, "u_fog"), tex: gl.getUniformLocation(P1, "u_tex"), light: gl.getUniformLocation(P1, "u_light"), sky: gl.getUniformLocation(P1, "u_sky"), alpha: gl.getUniformLocation(P1, "u_alpha"), cave: gl.getUniformLocation(P1, "u_cave") };
 const L2 = { pos: gl.getAttribLocation(P2, "a_pos"), vp: gl.getUniformLocation(P2, "u_vp"), off: gl.getUniformLocation(P2, "u_off"), col: gl.getUniformLocation(P2, "u_col"), sc: gl.getUniformLocation(P2, "u_sc"), loc: gl.getUniformLocation(P2, "u_loc"), yaw: gl.getUniformLocation(P2, "u_yaw"), ctr: gl.getUniformLocation(P2, "u_ctr") };
 function p2xf(sx, sy, sz, lx, ly, lz, yaw, ctr) { gl.uniform3f(L2.sc, sx, sy, sz); gl.uniform3f(L2.loc, lx, ly, lz); gl.uniform1f(L2.yaw, yaw); gl.uniform1f(L2.ctr, ctr); }
 const atlasTex = gl.createTexture();
@@ -2492,7 +2492,7 @@ function frame(now) {
   drawSky(vp, cam, sun, sky, camW);
   gl.useProgram(P1);
   gl.uniformMatrix4fv(L1.vp, false, vp); gl.uniform1i(L1.tex, 0); gl.uniform1f(L1.light, light); gl.uniform1f(L1.cave, nv ? Math.max(light, .95) : Math.min(.27, light)); gl.uniform3f(L1.sky, sky[0], sky[1], sky[2]);
-  const fe = camW ? 22 : G.renderDist * CS - 6; gl.uniform2f(L1.fog, camW ? 2 : fe * .55, fe); gl.uniform1f(L1.alpha, 1);
+  const fe = camW ? 22 : G.renderDist * CS - 6; gl.uniform2f(L1.fog, camW ? 2 : fe * .55, fe); gl.uniform1f(L1.alpha, 1); gl.uniform3f(L1.cam, cam[0], cam[1], cam[2]); gl.uniform1f(L1.t, performance.now() / 1000 % 3600); gl.uniform1f(L1.wv, 0); gl.uniform3f(L1.cam, cam[0], cam[1], cam[2]); gl.uniform1f(L1.t, performance.now() / 1000 % 3600); gl.uniform1f(L1.wv, 0);
   gl.bindTexture(gl.TEXTURE_2D, atlasTex);
   gl.enableVertexAttribArray(L1.pos); gl.enableVertexAttribArray(L1.uv);
   const pl = frustumPlanes(vp); let drawn = 0; const vis = [];
@@ -2509,9 +2509,9 @@ function frame(now) {
   gl.disableVertexAttribArray(L1.uv);
   drawOthers(vp, cam); drawMobs(vp, cam); drawNodes(vp, cam); drawTEItems(vp, cam); drawRotors(vp, cam); drawFX(vp, cam, dt);
   if (vis.length) {
-    gl.useProgram(P1); gl.enableVertexAttribArray(L1.pos); gl.enableVertexAttribArray(L1.uv); gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); gl.depthMask(false); gl.disable(gl.CULL_FACE); gl.uniform1f(L1.alpha, .62);
+    gl.useProgram(P1); gl.enableVertexAttribArray(L1.pos); gl.enableVertexAttribArray(L1.uv); gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); gl.depthMask(false); gl.disable(gl.CULL_FACE); gl.uniform1f(L1.alpha, .62); gl.uniform1f(L1.wv, 1);
     for (const c of vis) { gl.uniform3f(L1.off, c.cx * CS - cam[0], -cam[1], c.cz * CS - cam[2]); gl.bindBuffer(gl.ARRAY_BUFFER, c.wvbo); gl.vertexAttribPointer(L1.pos, 4, gl.UNSIGNED_BYTE, false, 8, 0); gl.vertexAttribPointer(L1.uv, 2, gl.UNSIGNED_SHORT, true, 8, 4); gl.drawArrays(gl.TRIANGLES, 0, c.wcount); }
-    gl.uniform1f(L1.alpha, 1); gl.depthMask(true); gl.disable(gl.BLEND); gl.enable(gl.CULL_FACE); gl.disableVertexAttribArray(L1.uv);
+    gl.uniform1f(L1.alpha, 1); gl.uniform1f(L1.wv, 0); gl.depthMask(true); gl.disable(gl.BLEND); gl.enable(gl.CULL_FACE); gl.disableVertexAttribArray(L1.uv);
   }
   // подсветка блока и трещины
   const hit = raycast(6);
