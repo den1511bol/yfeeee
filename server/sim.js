@@ -1,20 +1,21 @@
 "use strict";
 /* Симуляция механизмов на сервере. Разработчик: @yfeeeee. Идентификаторы должны совпадать с index.html */
-const B = { LOG: 5, PLANKS: 7, COBBLE: 8, SAND: 4, GLASS: 15, STONE: 3, CHEST: 23, CABLE: 24, GENERATOR: 25, SOLAR: 26, SMELTER: 27, MACERATOR: 28, BATTERY: 29, MECABLE: 30, TERMINAL: 31, CRUCIBLE: 32, DRIVE: 33, QBRIDGE: 35, JAR: 38, PEDESTAL: 47, CHEST_IRON: 48, CHEST_GOLD: 49, CHEST_DIAMOND: 50, INFUSION: 34, PRESS: 51, MILL: 52, SMELTERY: 53, TANK: 54, CAST: 55, WHEEL: 56, WINDMILL: 57, REACTOR: 64, CHARGER: 65, MFE: 66, SHAFT: 67, COGWHEEL: 68, WATER: 21 };
+const B = { LOG: 5, PLANKS: 7, COBBLE: 8, SAND: 4, GLASS: 15, STONE: 3, CHEST: 23, CABLE: 24, GENERATOR: 25, SOLAR: 26, SMELTER: 27, MACERATOR: 28, BATTERY: 29, MECABLE: 30, TERMINAL: 31, CRUCIBLE: 32, DRIVE: 33, QBRIDGE: 35, JAR: 38, PEDESTAL: 47, CHEST_IRON: 48, CHEST_GOLD: 49, CHEST_DIAMOND: 50, INFUSION: 34, PRESS: 51, MILL: 52, SMELTERY: 53, TANK: 54, CAST: 55, WHEEL: 56, WINDMILL: 57, REACTOR: 64, CHARGER: 65, MFE: 66, COMPRESSOR: 70, SHAFT: 67, COGWHEEL: 68, WATER: 21 };
 const I = { STICK: 100, COAL: 101, RAW_COPPER: 102, RAW_TIN: 103, RAW_IRON: 104, RAW_GOLD: 105, ING_COPPER: 107, ING_TIN: 108, ING_IRON: 109, ING_GOLD: 110, RAW_MEAT: 180, COOKED: 181, DUST_COPPER: 190, DUST_TIN: 191, DUST_IRON: 192, DUST_GOLD: 193 };
 const FUEL = { [I.COAL]: 40, [B.LOG]: 10, [B.PLANKS]: 5, [I.STICK]: 2 };
 const SMELT = { [I.RAW_COPPER]: I.ING_COPPER, [I.RAW_TIN]: I.ING_TIN, [I.RAW_IRON]: I.ING_IRON, [I.RAW_GOLD]: I.ING_GOLD, [I.DUST_COPPER]: I.ING_COPPER, [I.DUST_TIN]: I.ING_TIN, [I.DUST_IRON]: I.ING_IRON, [I.DUST_GOLD]: I.ING_GOLD, [B.SAND]: B.GLASS, [B.COBBLE]: B.STONE, [I.RAW_MEAT]: I.COOKED };
 const MACER = { [I.RAW_COPPER]: [I.DUST_COPPER, 2], [I.RAW_TIN]: [I.DUST_TIN, 2], [I.RAW_IRON]: [I.DUST_IRON, 2], [I.RAW_GOLD]: [I.DUST_GOLD, 2], [B.COBBLE]: [B.SAND, 1], [B.LOG]: [B.PLANKS, 6] };
+const COMPM = { [8]: [3, 1], [3]: [22, 1] };
 const PRESSM = { [109]: [231, 1], [107]: [232, 1], [110]: [233, 1] };
 const MILLM = { [102]: [190, 2], [103]: [191, 2], [104]: [192, 2], [105]: [193, 2] };
-const TEDEF = { [B.CHEST]: { slots: 27 }, [B.REACTOR]: { slots: 54, energy: true }, [B.CHARGER]: { slots: 1, energy: true }, [B.MFE]: { slots: 0, energy: true }, [B.SMELTERY]: { slots: 2, cells: 1 }, [B.TANK]: { slots: 0, cells: 1 }, [B.CAST]: { slots: 2 }, [B.WHEEL]: { slots: 0, energy: true }, [B.WINDMILL]: { slots: 0, energy: true }, [B.PRESS]: { slots: 2, energy: true, rate: 18 }, [B.MILL]: { slots: 2, energy: true, rate: 6 }, [B.GENERATOR]: { slots: 1, energy: true }, [B.SOLAR]: { slots: 0, energy: true }, [B.SMELTER]: { slots: 2, energy: true, rate: 12 }, [B.MACERATOR]: { slots: 2, energy: true, rate: 15 }, [B.BATTERY]: { slots: 0, energy: true }, [B.TERMINAL]: { slots: 0 }, [B.CRUCIBLE]: { slots: 1 }, [B.DRIVE]: { slots: 0, cells: 5 }, [B.QBRIDGE]: { slots: 0 }, [B.JAR]: { slots: 0, cells: 1 }, [B.PEDESTAL]: { slots: 1 }, [B.CHEST_IRON]: { slots: 54 }, [B.CHEST_GOLD]: { slots: 81 }, [B.CHEST_DIAMOND]: { slots: 108 }, [B.INFUSION]: { slots: 1 } };
-const ENERGY = new Set([B.CABLE, B.GENERATOR, B.SOLAR, B.SMELTER, B.MACERATOR, B.PRESS, B.MILL, B.WHEEL, B.WINDMILL, B.REACTOR, B.CHARGER, B.MFE, B.SHAFT, B.COGWHEEL, B.BATTERY]);
+const TEDEF = { [B.CHEST]: { slots: 27 }, [B.REACTOR]: { slots: 54, energy: true }, [B.CHARGER]: { slots: 1, energy: true }, [B.MFE]: { slots: 0, energy: true }, [B.COMPRESSOR]: { slots: 2, energy: true, rate: 20 }, [B.SMELTERY]: { slots: 2, cells: 1 }, [B.TANK]: { slots: 0, cells: 1 }, [B.CAST]: { slots: 2 }, [B.WHEEL]: { slots: 0, energy: true }, [B.WINDMILL]: { slots: 0, energy: true }, [B.PRESS]: { slots: 2, energy: true, rate: 18 }, [B.MILL]: { slots: 2, energy: true, rate: 6 }, [B.GENERATOR]: { slots: 1, energy: true }, [B.SOLAR]: { slots: 0, energy: true }, [B.SMELTER]: { slots: 2, energy: true, rate: 12 }, [B.MACERATOR]: { slots: 2, energy: true, rate: 15 }, [B.BATTERY]: { slots: 0, energy: true }, [B.TERMINAL]: { slots: 0 }, [B.CRUCIBLE]: { slots: 1 }, [B.DRIVE]: { slots: 0, cells: 5 }, [B.QBRIDGE]: { slots: 0 }, [B.JAR]: { slots: 0, cells: 1 }, [B.PEDESTAL]: { slots: 1 }, [B.CHEST_IRON]: { slots: 54 }, [B.CHEST_GOLD]: { slots: 81 }, [B.CHEST_DIAMOND]: { slots: 108 }, [B.INFUSION]: { slots: 1 } };
+const ENERGY = new Set([B.CABLE, B.GENERATOR, B.SOLAR, B.SMELTER, B.MACERATOR, B.PRESS, B.MILL, B.WHEEL, B.WINDMILL, B.REACTOR, B.CHARGER, B.COMPRESSOR, B.MFE, B.SHAFT, B.COGWHEEL, B.BATTERY]);
 const DIRS = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
 const BAT_CAP = 4000;
 const create = (t, k) => ({ t, k, freq: 1, slots: new Array(TEDEF[t].slots).fill(null), cells: TEDEF[t].cells ? new Array(TEDEF[t].cells).fill(null) : undefined, e: 0, p: 0, burn: 0 });
 function job(te) {
   const inp = te.slots[0]; if (!inp) return null; let out, n = 1;
-  if (te.t === B.SMELTER) out = SMELT[inp.id]; else { const m = (te.t === B.PRESS ? PRESSM : te.t === B.MILL ? MILLM : MACER)[inp.id]; if (m) { out = m[0]; n = m[1]; } }
+  if (te.t === B.SMELTER) out = SMELT[inp.id]; else { const m = (te.t === B.COMPRESSOR ? COMPM : te.t === B.PRESS ? PRESSM : te.t === B.MILL ? MILLM : MACER)[inp.id]; if (m) { out = m[0]; n = m[1]; } }
   if (!out) return null; const o = te.slots[1]; if (o && (o.id !== out || o.n + n > 64)) return null; return { out, n, rate: TEDEF[te.t].rate };
 }
 const MELT = { 102: ["copper", 200], 103: ["tin", 200], 104: ["iron", 200], 105: ["gold", 200], 190: ["copper", 100], 191: ["tin", 100], 192: ["iron", 100], 193: ["gold", 100], 107: ["copper", 100], 108: ["tin", 100], 109: ["iron", 100], 110: ["gold", 100], 149: ["thaum", 100], 230: ["bronze", 100] };
@@ -63,7 +64,7 @@ function tick(TE, blockAt, dt, sun) {
     for (const t of comp) {
       if (t.t === B.BATTERY || t.t === B.MFE) { bats.push(t); batE += t.e; batCap += t.t === B.MFE ? 40000 : BAT_CAP; }
       else if (t.t === B.GENERATOR) gens.push(t);
-      else if (t.t === B.SMELTER || t.t === B.MACERATOR || t.t === B.PRESS || t.t === B.MILL) { const j = job(t); if (j) { cons.push([t, j]); req += j.rate * dt; } else t.p = 0; }
+      else if (t.t === B.SMELTER || t.t === B.MACERATOR || t.t === B.PRESS || t.t === B.MILL || t.t === B.COMPRESSOR) { const j = job(t); if (j) { cons.push([t, j]); req += j.rate * dt; } else t.p = 0; }
       else if (t.t === B.CHARGER) { if (t.slots[0] && t.slots[0].d > 0) { req += 30 * dt; chg.push(t); } }
       else if (t.t === B.REACTOR) { prod += (t.e || 0) * dt; }
       else if (t.t === B.WHEEL) { const q2 = t.k.split(",").map(Number); let w = 0; for (const d of DIRS) { const nk = (q2[0] + d[0]) + "," + (q2[1] + d[1]) + "," + (q2[2] + d[2]); if (blockAt(nk) === B.WATER) w = 1; const tq = TE.get(nk); if (tq && tq.t === B.TANK && tq.cells[0] && tq.cells[0].items.water > 0) w = 1; } prod += w * 12 * dt; }

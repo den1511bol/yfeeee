@@ -1622,7 +1622,7 @@ function aspOf(id) { if (ITEM_ASP[id]) return ITEM_ASP[id]; const b = BLOCK_ASP[
 function skyClear(x, y, z) { for (let yy = y + 1; yy < WH; yy++) { const b = blockAt(x, yy, z); if (b > 0 && OPAQUE[b]) return false; } return true; }
 function machineJob(te) {
   const D = TEDEF[te.t], inp = te.slots[0]; if (!inp) return null;
-  let out, n = 1; if (te.t === B.SMELTER) out = SMELT[inp.id]; else { const m = (te.t === B.PRESS ? PRESSM : te.t === B.MILL ? MILLM : MACER)[inp.id]; if (m) { out = m[0]; n = m[1]; } }
+  let out, n = 1; if (te.t === B.SMELTER) out = SMELT[inp.id]; else { const m = (te.t === B.COMPRESSOR ? COMPM : te.t === B.PRESS ? PRESSM : te.t === B.MILL ? MILLM : MACER)[inp.id]; if (m) { out = m[0]; n = m[1]; } }
   if (!out) return null; const o = te.slots[1]; if (o && (o.id !== out || o.n + n > maxStack(out))) return null; return { out, n, rate: D.rate };
 }
 // ---------- Tinkers: плавильня, литьё, детали инструментов (Разработчик: @yfeeeee) ----------
@@ -1763,7 +1763,7 @@ document.addEventListener("pointerup", (e) => dragEnd(e, false), true); document
 document.addEventListener("click", (e) => { if (performance.now() - (G.openT || 0) < 450 && e.target.closest && e.target.closest("#inv")) { e.stopImmediatePropagation(); e.preventDefault(); return; } if (e.target.closest && e.target.closest(".big,.craft,.slot,.btn,.x,#chips button")) sfx("click"); }, true);
 
 // ---------- IC2: ядерный реактор, уран, радиация (Разработчик: @yfeeeee) ----------
-Object.assign(I, { CELL_L: 262, E_DRILL: 260, E_SAW: 261, U_CELL: 250, U_DEP: 251, COOLANT: 252, VENT: 253, RVENT: 254, REFLECT: 255, EXCH: 256, RAW_URAN: 257, GEIGER: 258, ING_URAN: 259 }); Object.assign(B, { URANIUM: 63, REACTOR: 64, CHARGER: 65, MFE: 66, SHAFT: 67, COGWHEEL: 68, TSTATION: 69 });
+Object.assign(I, { CELL_L: 262, E_DRILL: 260, E_SAW: 261, U_CELL: 250, U_DEP: 251, COOLANT: 252, VENT: 253, RVENT: 254, REFLECT: 255, EXCH: 256, RAW_URAN: 257, GEIGER: 258, ING_URAN: 259 }); Object.assign(B, { COMPRESSOR: 70, URANIUM: 63, REACTOR: 64, CHARGER: 65, MFE: 66, SHAFT: 67, COGWHEEL: 68, TSTATION: 69 });
 def(B.TSTATION, "Верстак инструментов", ["planks", "table_top", "table_side"], 3, { tool: 2 }); ITEMNAME[B.TSTATION] = "Верстак инструментов";
 DESC[B.TSTATION] = "Верстак инструментов (Tinkers): положи сломанный инструмент в левый слот, а в правый — слитки его материала (медь/бронза/железо/золото/тауметал). Каждый слиток чинит 25% прочности.";
 const REPAIRM = () => ({ [I.ING_COPPER]: 0, [I.ING_BRONZE]: 1, [I.ING_IRON]: 2, [I.ING_GOLD]: 3, [I.ING_THAUM]: 4 });
@@ -1794,6 +1794,11 @@ RECIPES.push(R(I.U_CELL, 1, { [I.ING_URAN]: 1, [I.PLATE_IRON]: 1 }, "table"), R(
 const REACT_OK = new Set([250, 252, 253, 254, 255, 256]);
 ITEMNAME[I.CELL_L] = "Большая ячейка ME (16К)"; DESC[I.CELL_L] = "Ячейка ME на 16384 предмета — в 8 раз больше обычной. Вставляется в привод.";
 RECIPES.push(R(I.CELL_L, 1, { [I.CELL]: 2, [B.GLASS]: 2, [I.ING_THAUM]: 1, [I.PLATE_GOLD]: 2 }, "table"));
+def(B.COMPRESSOR, "Компрессор", ["machine_top", "machine_top", "press_side"], 5, { tool: 1, need: 1 }); ITEMNAME[B.COMPRESSOR] = "Компрессор"; ENERGY[B.COMPRESSOR] = 1;
+DESC[B.COMPRESSOR] = "Компрессор (IC2): сжимает булыжник в камень, камень — в каменные кирпичи. Питается от энергосети.";
+const COMPM = { [B.COBBLE]: [B.STONE, 1], [B.STONE]: [B.STONEBRICK, 1] };
+MACHS.add(B.COMPRESSOR); TEDEF[B.COMPRESSOR] = { slots: 2, energy: true, accept: (i, id) => i === 0 && !!COMPM[id], rate: 20 };
+RECIPES.push(R(B.COMPRESSOR, 1, { [B.PRESS]: 1, [I.PLATE_IRON]: 3, [B.BATTERY]: 1 }, "table"));
 TEDEF[B.CHARGER] = { slots: 1, energy: true, accept: (i, id) => !!(TOOL[id] && TOOL[id].elec) }; ENERGY[B.CHARGER] = 1;
 TEDEF[B.REACTOR] = { slots: 54, energy: true, accept: (i, id) => REACT_OK.has(id) }; ENERGY[B.REACTOR] = 1;
 const HMAX = { 252: 10000, 253: 1000, 254: 1000, 256: 2500 }, RHEAT = { 252: 1, 253: 1, 254: 1, 256: 1 };
