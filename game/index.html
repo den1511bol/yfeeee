@@ -1971,9 +1971,9 @@ function renderSpecial(box) {
     if (te.t === B.REACTOR) renderReactorUI(box, te); else note(box, lines.join("<br>"));
   }
   if (D.slots) {
-    note(box, CHESTS.has(te.t) ? "Выбери предмет слева, затем нажми на ячейку здесь. Нажми на предмет здесь — заберёшь." : te.t === B.TSTATION ? "Слева — инструмент для ремонта, справа — слитки его материала (каждый чинит 25%). Выбери предмет в инвентаре и нажми на ячейку." : D.slots === 2 ? "Слева — вход, справа — результат. Выбери предмет в инвентаре и нажми на вход." : "Выбери предмет в инвентаре, затем нажми на ячейку.");
+    note(box, CHESTS.has(te.t) ? "Выбери предмет слева, затем нажми на ячейку здесь. Нажми на предмет здесь — заберёшь." : te.t === B.SMELTERY ? "Слева — руда, пыль или слитки для плавки, справа — топливо (уголь). Металл стекает в резервуары рядом." : te.t === B.TSTATION ? "Слева — инструмент для ремонта, справа — слитки его материала (каждый чинит 25%). Выбери предмет в инвентаре и нажми на ячейку." : D.slots === 2 ? "Слева — вход, справа — результат. Выбери предмет в инвентаре и нажми на вход." : "Выбери предмет в инвентаре, затем нажми на ячейку.");
     const g = document.createElement("div"); const cols = te.t === B.REACTOR ? 9 : D.slots > 54 ? 9 : D.slots > 9 ? 6 : D.slots; g.style.cssText = `display:grid;grid-template-columns:repeat(${cols},1fr);gap:5px;max-width:${D.slots > 9 ? "100%" : 70 * D.slots + "px"}`;
-    for (let i = 0; i < D.slots; i++) g.appendChild(slotBtn(te.slots[i], () => tapCont(i), !CHESTS.has(te.t) && te.t !== B.TSTATION && i === 1 ? ";border-color:#5fe08a" : ""));
+    for (let i = 0; i < D.slots; i++) g.appendChild(slotBtn(te.slots[i], () => tapCont(i), !CHESTS.has(te.t) && D.slots === 2 && te.t !== B.TSTATION && te.t !== B.SMELTERY && i === 1 ? ";border-color:#5fe08a" : (te.t === B.SMELTERY && i === 1 ? ";border-color:#ff9a3a" : "")));
     box.appendChild(g);
   }
 }
@@ -2069,7 +2069,7 @@ function renderME(box, te) {
   box.appendChild(g);
 }
 function renderDrive(box, te) {
-  note(box, `Ячейка хранит до <b>${CELL_CAP}</b> предметов любых видов. Вставь ячейку — привод, подключённый к ME-сети, станет складом.`);
+  note(box, `Ячейка хранит до <b>${CELL_CAP}</b> предметов любых видов (большая — <b>16384</b>). Вставь ячейку — привод, подключённый к ME-сети, станет складом.`);
   for (let i = 0; i < te.cells.length; i++) {
     const c = te.cells[i], row = document.createElement("div"); row.className = "rcp";
     const mid = document.createElement("div"); mid.className = "mid";
