@@ -18,7 +18,7 @@ function job(te) {
   if (te.t === B.SMELTER) out = SMELT[inp.id]; else { const m = (te.t === B.COMPRESSOR ? COMPM : te.t === B.PRESS ? PRESSM : te.t === B.MILL ? MILLM : MACER)[inp.id]; if (m) { out = m[0]; n = m[1]; } }
   if (!out) return null; const o = te.slots[1]; if (o && (o.id !== out || o.n + n > 64)) return null; return { out, n, rate: TEDEF[te.t].rate };
 }
-const MELT = { 102: ["copper", 200], 103: ["tin", 200], 104: ["iron", 200], 105: ["gold", 200], 190: ["copper", 100], 191: ["tin", 100], 192: ["iron", 100], 193: ["gold", 100], 107: ["copper", 100], 108: ["tin", 100], 109: ["iron", 100], 110: ["gold", 100], 149: ["thaum", 100], 230: ["bronze", 100] };
+const MELT = { 14: ["diamond", 200], 102: ["copper", 200], 103: ["tin", 200], 104: ["iron", 200], 105: ["gold", 200], 190: ["copper", 100], 191: ["tin", 100], 192: ["iron", 100], 193: ["gold", 100], 107: ["copper", 100], 108: ["tin", 100], 109: ["iron", 100], 110: ["gold", 100], 149: ["thaum", 100], 230: ["bronze", 100] };
 function smeltTick(te, dt, TEX) {
   const c = te.cells[0] || (te.cells[0] = { items: {}, tot: 0 }), inp = te.slots[0], m = inp && MELT[inp.id];
   if (te.burn > 0) te.burn -= dt;
