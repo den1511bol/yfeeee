@@ -1155,9 +1155,12 @@ const RESEARCH = [
   { k: "quantum", n: "Квантовая связь", d: "Квантовый мост для ME-сети", c: { ordo: 20, aer: 20 }, req: ["infuse"] },
   { k: "alchemy", n: "Алхимия", d: "Зелья: исцеление, скорость, ночное зрение", c: { aqua: 10, ignis: 5 }, req: [] },
   { k: "golem", n: "Големансия", d: "Призыв железного голема-стража", c: { terra: 20, ordo: 15, ignis: 10 }, req: ["infuse"] },
+  { k: "thaumarm", n: "Тауметаллическая броня", d: "Комплект брони из тауметалла", c: { terra: 12, ordo: 12, ignis: 8 }, req: ["infuse"] },
+  { k: "bigcell", n: "Большие ячейки", d: "Ячейка ME на 16К предметов", c: { ordo: 15, perditio: 10, aer: 10 }, req: ["quantum"] },
   { k: "arcpick", n: "Арканная кирка", d: "Кирка из алмаза и кристаллов", c: { ignis: 15, terra: 15, perditio: 10 }, req: ["infuse"] },
 ];
 const RES_OF = { [I.RING_SPEED]: "jewel", [I.RING_HASTE]: "jewel", [I.RING_REGEN]: "jewel", [I.RING_JUMP]: "jewel", [I.RING_ANGEL]: "high", [I.RING_VISION]: "high", [B.INFUSION]: "infuse", [I.WAND2]: "infuse", [I.RING_FEATHER]: "infuse", [B.ASPIPE]: "pipes", [B.JAR]: "pipes", [B.QBRIDGE]: "quantum", [I.PICK_ARCANE]: "arcpick", [I.GOLEM]: "golem", [I.POT_HEAL]: "alchemy", [I.POT_SPEED]: "alchemy", [I.POT_NIGHT]: "alchemy", [I.CAP_THAUM]: "infuse", [I.ROD_CRYSTAL]: "infuse" };
+for (let p = 0; p < 4; p++) RES_OF[222 + p] = "thaumarm"; RES_OF[262] = "bigcell";
 const resName = (k) => RESEARCH.find((r) => r.k === k).n;
 const resOk = (out) => { const k = RES_OF[out]; return !k || G.creative || !!G.res[k]; };
 const JARCAP = 100;
