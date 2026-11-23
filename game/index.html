@@ -1903,6 +1903,20 @@ function reactorFx(dt) {
   if (G.shake > 0) G.shake = Math.max(0, G.shake - .1);
   const fl = $("flash"); if (fl && G.flash > 0) { G.flash = Math.max(0, G.flash - .05); fl.style.opacity = G.flash; }
 }
+G.rain = 0; G.rainTarget = 0; G.wxT = 90 + Math.random() * 120; G.thT = 20;
+function weatherTick(dt) {
+  G.wxT -= dt; if (G.wxT <= 0) { if (G.rainTarget > 0) { G.rainTarget = 0; G.wxT = 240 + Math.random() * 420; } else { G.rainTarget = .55 + Math.random() * .45; G.wxT = 100 + Math.random() * 160; if (!G.rainToast) { G.rainToast = 1; toast("Начинается дождь"); } } }
+  G.rain += Math.sign(G.rainTarget - G.rain) * Math.min(Math.abs(G.rainTarget - G.rain), dt * .08);
+  if (G.rain < .02) return;
+  const px = Math.floor(P.x), pz = Math.floor(P.z); let roofed = false; for (let y = Math.floor(P.y + 2); y < WH; y++) { const b = blockAt(px, y, pz); if (b > 0 && OPAQUE[b]) { roofed = true; break; } }
+  G.rainIn = roofed;
+  const n = G.rain * 150 * dt; for (let i = 0; i < n; i++) {
+    if (FX.length > 640) break; const a = Math.random() * 6.283, r = Math.sqrt(Math.random()) * 11, x = P.x + Math.cos(a) * r, z = P.z + Math.sin(a) * r, gh = groundY(x, z); if (gh === null) continue;
+    const top = Math.max(gh, P.y) + 11, life = Math.max(.1, (top - gh - .2) / 20); fxOne(x, top, z, 0, -20, 0, life, [.62, .72, .95], .03, 0, 0); FX[FX.length - 1].sy = 14;
+  }
+  G.rsT = (G.rsT || 0) - dt; if (G.rsT <= 0) { G.rsT = roofed ? .5 : .22; sfxNoise(.35, 5200, 3000, (roofed ? .012 : .035) * G.rain, "bandpass"); }
+  if (G.rain > .8) { G.thT -= dt; if (G.thT <= 0) { G.thT = 35 + Math.random() * 70; G.flash = Math.max(G.flash || 0, .55); setTimeout(() => { sfxNoise(2.4, 600, 40, .35, "lowpass"); sfxTone(1.8, 70, 28, .3, "sine"); }, 600 + Math.random() * 1800); } }
+}
 function ambientFx(dt) {
   G.afT = (G.afT || 0) - dt; if (G.afT > 0) return; G.afT = .15;
   const R2 = 24 * 24, rr = Math.random;
@@ -2332,7 +2346,7 @@ function drawFX(vp, cam, dt) {
   for (let i = FX.length - 1; i >= 0; i--) {
     const p = FX[i]; p.life -= dt; if (p.life <= 0) { FX.splice(i, 1); continue; }
     p.vy -= 12 * (p.g === undefined ? 1 : p.g) * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt;
-    gl.uniform3f(L2.off, p.x - cam[0], p.y - cam[1], p.z - cam[2]); const ps = p.shr ? p.s * (.25 + .75 * Math.max(0, p.life / (p.l0 || 1))) : p.s; p2xf(ps, ps, ps, -ps / 2, 0, -ps / 2, 0, 1); gl.uniform4f(L2.col, p.col[0], p.col[1], p.col[2], 1); gl.drawArrays(gl.TRIANGLES, 0, 36);
+    gl.uniform3f(L2.off, p.x - cam[0], p.y - cam[1], p.z - cam[2]); const ps = p.shr ? p.s * (.25 + .75 * Math.max(0, p.life / (p.l0 || 1))) : p.s; p2xf(ps, ps * (p.sy || 1), ps, -ps / 2, 0, -ps / 2, 0, 1); gl.uniform4f(L2.col, p.col[0], p.col[1], p.col[2], 1); gl.drawArrays(gl.TRIANGLES, 0, 36);
   }
   p2xf(1, 1, 1, 0, 0, 0, 0, 0); gl.disableVertexAttribArray(L2.pos);
 }
@@ -2492,9 +2506,10 @@ function frame(now) {
   manageChunks(3);
   G.time = (G.time + dt / 600) % 1;
   const sun = clamp(Math.sin(G.time * 2 * Math.PI) * 1.6 + .25, 0, 1);
-  G.sun = sun; if (!paused) { survivalTick(dt, sun); ambTick(dt); radTick(dt); reactorWatch(dt); reactorFx(dt); ambientFx(dt); if (!NET.ws) teAdvance(dt); if (hasRing(I.RING_REGEN) && !G.creative && !G.dead) { G.ringT = (G.ringT || 0) + dt; if (G.ringT > 4) { G.ringT = 0; if (G.hp < 20) { G.hp++; updateStats(); } } } }
+  G.sun = sun; if (!paused) { survivalTick(dt, sun); ambTick(dt); radTick(dt); reactorWatch(dt); reactorFx(dt); ambientFx(dt); weatherTick(dt); if (!NET.ws) teAdvance(dt); if (hasRing(I.RING_REGEN) && !G.creative && !G.dead) { G.ringT = (G.ringT || 0) + dt; if (G.ringT > 4) { G.ringT = 0; if (G.hp < 20) { G.hp++; updateStats(); } } } }
   const day = [.55, .78, .96], night = [.03, .04, .1];
   for (let i = 0; i < 3; i++) sky[i] = lerp(night[i], day[i], sun);
+  if (G.rain > .02) { const rg = [.42, .46, .52]; for (let i = 0; i < 3; i++) sky[i] = lerp(sky[i], rg[i] * (.25 + .75 * sun), G.rain * .75); }
   const nv = hasRing(I.RING_VISION) || G.buf.night > 0, light = nv ? Math.max(.38 + .62 * sun, .95) : .38 + .62 * sun;
   const camW = blockAt(Math.floor(P.x), Math.floor(P.y + EYE), Math.floor(P.z)) === B.WATER; $("water").style.display = camW ? "block" : "none";
   if (camW) { sky[0] = .08 * (.3 + sun); sky[1] = .22 * (.3 + sun); sky[2] = .5 * (.3 + sun); }
@@ -2620,7 +2635,7 @@ addEventListener("visibilitychange", () => { if (document.hidden && G.running) s
 addEventListener("beforeunload", () => { if (G.running) saveGame(); });
 if (!loadSave()) $("bPlay").textContent = "▶ Играть (новый мир)";
 requestAnimationFrame(frame);
-window.__g = { stepPlayer, input, SOLID, BD, TEDEF, MELT, TMAT, HEAD, TOOLID, saveGame, loadSave, countItem, RECIPES, allItemIds, doBreak, reactorBoom, radTick, hazFrac, tapCont, slotTap, startResearch, openResTable, RESEARCH, TILE, atlasCanvas, BD, genTile, itemIcon, BELTV, castDo, TOOL, wear, durMax, MATRIX, matrixStart, matrixMatch, matrixTick, get mx() { return G.mx; }, NODES, nodeAt, nodeRay, ARR, remoteMobs, setCont: (k) => { cont = { key: k }; }, TE, newTE, teTick, TEDEF, G2: G, mobs, trySpawn, damagePlayer, die, updateStats, sfx, NET, asp, RECIPES, G, P, inv, input, B, I, setBlock, blockAt, startWorld, openPanel, closePanel, useBlock, raycast, addItem, get sel() { return selSlot; }, look, aspJars, resOk, AV, spendAsp, jarAdd, RESEARCH, doCraft, canCraft, refreshRecipes };
+window.__g = { G, stepPlayer, input, SOLID, BD, TEDEF, MELT, TMAT, HEAD, TOOLID, saveGame, loadSave, countItem, RECIPES, allItemIds, doBreak, reactorBoom, radTick, hazFrac, tapCont, slotTap, startResearch, openResTable, RESEARCH, TILE, atlasCanvas, BD, genTile, itemIcon, BELTV, castDo, TOOL, wear, durMax, MATRIX, matrixStart, matrixMatch, matrixTick, get mx() { return G.mx; }, NODES, nodeAt, nodeRay, ARR, remoteMobs, setCont: (k) => { cont = { key: k }; }, TE, newTE, teTick, TEDEF, G2: G, mobs, trySpawn, damagePlayer, die, updateStats, sfx, NET, asp, RECIPES, G, P, inv, input, B, I, setBlock, blockAt, startWorld, openPanel, closePanel, useBlock, raycast, addItem, get sel() { return selSlot; }, look, aspJars, resOk, AV, spendAsp, jarAdd, RESEARCH, doCraft, canCraft, refreshRecipes };
 </script>
 </body>
 </html>
