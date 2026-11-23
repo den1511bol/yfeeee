@@ -816,6 +816,7 @@ const FACES = [
   { n: [0, 0, -1], u: [0, 1, 0], v: [1, 0, 0], sh: .68, st: (a, b) => [b, 1 - a], t: 2 },
 ];
 const AOK = [.55, .7, .86, 1];
+const MODELED = new Set();
 function emitBox(X, x, y, z, x0, y0, z0, x1, y1, z1, tx, ty, inv, full) {
   const lo = [x0, y0, z0], hi = [x1, y1, z1];
   for (let f = 0; f < 6; f++) {
@@ -846,6 +847,14 @@ function buildMesh(c) {
   for (let y = 0; y < WH; y++) for (let z = 0; z < CS; z++) for (let x = 0; x < CS; x++) {
     const id = bl[cidx(x, y, z)]; if (id === 0) continue;
     const d = BD[id], isW = id === B.WATER, T = isW ? W : S;
+    if (MODELED.has(id)) {
+      const tt0 = TILE[d.tiles[0]], ts0 = TILE[d.tiles[2]], tA = [(tt0 % AT) * inv, Math.floor(tt0 / AT) * inv], tB = [(ts0 % AT) * inv, Math.floor(ts0 / AT) * inv];
+      emitBox(X, x, y, z, 0, 0, 0, 1, .13, 1, tA[0], tA[1], inv); emitBox(X, x, y, z, .06, .13, .06, .94, .82, .94, tB[0], tB[1], inv); emitBox(X, x, y, z, .015, .82, .015, .985, 1, .985, tA[0], tA[1], inv);
+      if (id === B.REACTOR) { emitBox(X, x, y, z, .3, 1, .3, .7, 1.22, .7, tB[0], tB[1], inv); emitBox(X, x, y, z, .24, 1.22, .24, .76, 1.3, .76, tA[0], tA[1], inv); }
+      else if (id === B.BATTERY || id === B.MFE) { emitBox(X, x, y, z, .3, 1, .3, .7, 1.1, .7, tA[0], tA[1], inv); }
+      else if (id === B.GENERATOR) { emitBox(X, x, y, z, .62, 1, .62, .86, 1.28, .86, tB[0], tB[1], inv); }
+      continue;
+    }
     if (id === B.PEDESTAL) { const tt = TILE[d.tiles[0]], tx = (tt % AT) * inv, ty = Math.floor(tt / AT) * inv; emitBox(X, x, y, z, .1, 0, .1, .9, .18, .9, tx, ty, inv); emitBox(X, x, y, z, .32, .18, .32, .68, .78, .68, tx, ty, inv); emitBox(X, x, y, z, .08, .78, .08, .92, .92, .92, tx, ty, inv); continue; }
     if (id === B.BED) { const tt = TILE.bed_top, ts = TILE.bed_side; emitBox(X, x, y, z, 0, 0, 0, 1, .56, 1, (tt % AT) * inv, Math.floor(tt / AT) * inv, inv); continue; }
     if (id === B.FLOWER_R || id === B.FLOWER_Y) {
@@ -1814,6 +1823,7 @@ const COMPM = { [B.COBBLE]: [B.STONE, 1], [B.STONE]: [B.STONEBRICK, 1] };
 MACHS.add(B.COMPRESSOR); TEDEF[B.COMPRESSOR] = { slots: 2, energy: true, accept: (i, id) => i === 0 && !!COMPM[id], rate: 20 };
 RECIPES.push(R(B.COMPRESSOR, 1, { [B.PRESS]: 1, [I.PLATE_IRON]: 3, [B.BATTERY]: 1 }, "table"));
 LIGHTSRC[B.REACTOR] = 7;
+for (const k of ["GENERATOR", "MACERATOR", "SMELTER", "PRESS", "MILL", "COMPRESSOR", "CHARGER", "BATTERY", "MFE", "REACTOR"]) if (B[k]) { MODELED.add(B[k]); OPAQUE[B[k]] = 0; }
 def(B.CRANK, "Рукоятка (Create)", ["shaft_top", "shaft_top", "shaft_side"], 2, { tool: 2 }); ITEMNAME[B.CRANK] = "Рукоятка (Create)"; ENERGY[B.CRANK] = 1;
 DESC[B.CRANK] = "Рукоятка: нажимай на неё — раскручивает вал и даёт 12 EU/с на 8 секунд. Подключается к энергосети (валы, кабели).";
 TEDEF[B.CRANK] = { slots: 0, energy: true };
