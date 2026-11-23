@@ -1802,6 +1802,7 @@ DESC[B.COMPRESSOR] = "Компрессор (IC2): сжимает булыжни�
 const COMPM = { [B.COBBLE]: [B.STONE, 1], [B.STONE]: [B.STONEBRICK, 1] };
 MACHS.add(B.COMPRESSOR); TEDEF[B.COMPRESSOR] = { slots: 2, energy: true, accept: (i, id) => i === 0 && !!COMPM[id], rate: 20 };
 RECIPES.push(R(B.COMPRESSOR, 1, { [B.PRESS]: 1, [I.PLATE_IRON]: 3, [B.BATTERY]: 1 }, "table"));
+LIGHTSRC[B.REACTOR] = 7;
 TEDEF[B.CHARGER] = { slots: 1, energy: true, accept: (i, id) => !!(TOOL[id] && TOOL[id].elec) }; ENERGY[B.CHARGER] = 1;
 TEDEF[B.REACTOR] = { slots: 54, energy: true, accept: (i, id) => REACT_OK.has(id) }; ENERGY[B.REACTOR] = 1;
 const HMAX = { 252: 10000, 253: 1000, 254: 1000, 256: 2500 }, RHEAT = { 252: 1, 253: 1, 254: 1, 256: 1 };
