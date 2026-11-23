@@ -683,6 +683,7 @@ function itemIcon(id) {
       else { ol(poly([[8, 20], [20, 20], [20, 34], [24, 38], [24, 42], [6, 42], [6, 30]]), col); ol(poly([[28, 20], [40, 20], [42, 30], [42, 42], [24, 42], [24, 38], [28, 34]]), col); }
       c.fillStyle = "rgba(255,255,255,.35)"; c.fillRect(16, 12, 6, 4);
     }
+    else if (id === I.CELL_L) { ol(poly([[10, 8], [34, 8], [40, 14], [40, 40], [10, 40]]), "#2c2350"); c.fillStyle = "#c78bff"; c.fillRect(16, 14, 18, 12); c.fillStyle = "#ffd25a"; for (let i = 0; i < 4; i++) c.fillRect(14 + i * 6, 34, 4, 5); c.fillStyle = "rgba(255,255,255,.6)"; c.fillRect(18, 16, 8, 3); }
     else if (id === I.CELL) { ol(poly([[10, 8], [34, 8], [40, 14], [40, 40], [10, 40]]), "#3a4258"); c.fillStyle = "#5ad1ff"; c.fillRect(16, 14, 18, 12); c.fillStyle = "#ffd25a"; for (let i = 0; i < 4; i++) c.fillRect(14 + i * 6, 34, 4, 5); c.fillStyle = "rgba(255,255,255,.6)"; c.fillRect(18, 16, 8, 3); }
     else if (RINGCOL[id]) { c.lineCap = "round"; c.strokeStyle = "#101820"; c.lineWidth = 9; c.beginPath(); c.arc(24, 29, 11, 0, 7); c.stroke(); c.strokeStyle = "#ffd25a"; c.lineWidth = 5; c.stroke(); ol(poly([[24, 5], [31, 13], [24, 21], [17, 13]]), RINGCOL[id], 1.5); c.fillStyle = "rgba(255,255,255,.6)"; c.fillRect(22, 9, 3, 4); }
     else if (DUSTCOL[id]) { ol(poly([[7, 38], [14, 26], [22, 20], [30, 22], [36, 28], [41, 38]]), DUSTCOL[id]); c.fillStyle = "rgba(255,255,255,.45)"; for (const [x, y] of [[18, 30], [26, 27], [31, 33], [22, 35]]) c.fillRect(x, y, 3, 3); }
@@ -1762,7 +1763,7 @@ document.addEventListener("pointerup", (e) => dragEnd(e, false), true); document
 document.addEventListener("click", (e) => { if (performance.now() - (G.openT || 0) < 450 && e.target.closest && e.target.closest("#inv")) { e.stopImmediatePropagation(); e.preventDefault(); return; } if (e.target.closest && e.target.closest(".big,.craft,.slot,.btn,.x,#chips button")) sfx("click"); }, true);
 
 // ---------- IC2: ядерный реактор, уран, радиация (Разработчик: @yfeeeee) ----------
-Object.assign(I, { E_DRILL: 260, E_SAW: 261, U_CELL: 250, U_DEP: 251, COOLANT: 252, VENT: 253, RVENT: 254, REFLECT: 255, EXCH: 256, RAW_URAN: 257, GEIGER: 258, ING_URAN: 259 }); Object.assign(B, { URANIUM: 63, REACTOR: 64, CHARGER: 65, MFE: 66, SHAFT: 67, COGWHEEL: 68, TSTATION: 69 });
+Object.assign(I, { CELL_L: 262, E_DRILL: 260, E_SAW: 261, U_CELL: 250, U_DEP: 251, COOLANT: 252, VENT: 253, RVENT: 254, REFLECT: 255, EXCH: 256, RAW_URAN: 257, GEIGER: 258, ING_URAN: 259 }); Object.assign(B, { URANIUM: 63, REACTOR: 64, CHARGER: 65, MFE: 66, SHAFT: 67, COGWHEEL: 68, TSTATION: 69 });
 def(B.TSTATION, "Верстак инструментов", ["planks", "table_top", "table_side"], 3, { tool: 2 }); ITEMNAME[B.TSTATION] = "Верстак инструментов";
 DESC[B.TSTATION] = "Верстак инструментов (Tinkers): положи сломанный инструмент в левый слот, а в правый — слитки его материала (медь/бронза/железо/золото/тауметал). Каждый слиток чинит 25% прочности.";
 const REPAIRM = () => ({ [I.ING_COPPER]: 0, [I.ING_BRONZE]: 1, [I.ING_IRON]: 2, [I.ING_GOLD]: 3, [I.ING_THAUM]: 4 });
@@ -1791,6 +1792,8 @@ function initHazmat() { for (let m = 2; m < 3; m++) { ARM_MATS[m] = ["Радиа
 SMELT[I.RAW_URAN] = I.ING_URAN;
 RECIPES.push(R(I.U_CELL, 1, { [I.ING_URAN]: 1, [I.PLATE_IRON]: 1 }, "table"), R(I.COOLANT, 1, { [I.ING_TIN]: 3, [B.GLASS]: 1 }, "table"), R(I.VENT, 1, { [I.PLATE_IRON]: 2, [I.ING_COPPER]: 2 }, "table"), R(I.RVENT, 1, { [I.VENT]: 1, [I.PLATE_COPPER]: 2 }, "table"), R(I.REFLECT, 1, { [I.PLATE_COPPER]: 3, [I.ING_TIN]: 1 }, "table"), R(I.EXCH, 1, { [I.PLATE_COPPER]: 2, [I.ING_GOLD]: 1, [I.ING_TIN]: 1 }, "table"), R(I.GEIGER, 1, { [I.PLATE_IRON]: 2, [I.ING_GOLD]: 1, [B.GLASS]: 1 }, "table"), R(B.REACTOR, 1, { [B.GENERATOR]: 1, [I.PLATE_IRON]: 8, [I.GEAR]: 1 }, "table"));
 const REACT_OK = new Set([250, 252, 253, 254, 255, 256]);
+ITEMNAME[I.CELL_L] = "Большая ячейка ME (16К)"; DESC[I.CELL_L] = "Ячейка ME на 16384 предмета — в 8 раз больше обычной. Вставляется в привод.";
+RECIPES.push(R(I.CELL_L, 1, { [I.CELL]: 2, [B.GLASS]: 2, [I.ING_THAUM]: 1, [I.PLATE_GOLD]: 2 }, "table"));
 TEDEF[B.CHARGER] = { slots: 1, energy: true, accept: (i, id) => !!(TOOL[id] && TOOL[id].elec) }; ENERGY[B.CHARGER] = 1;
 TEDEF[B.REACTOR] = { slots: 54, energy: true, accept: (i, id) => REACT_OK.has(id) }; ENERGY[B.REACTOR] = 1;
 const HMAX = { 252: 10000, 253: 1000, 254: 1000, 256: 2500 }, RHEAT = { 252: 1, 253: 1, 254: 1, 256: 1 };
@@ -1982,7 +1985,7 @@ function tapCont(i) {
   } else if (cs) { G.csel = { te, i }; showInfo(cs.id, cs.n, cs.d); }
   refreshUI(); G.dirtySave = true; syncTE(te);
 }
-const CELL_CAP = 2048;
+const CELL_CAP = 2048, cellCap = (c) => (c && c.cap) || CELL_CAP;
 function netStores(key) {
   const chests = [], drives = [], seen = new Set([key]), q = [key];
   while (q.length) {
@@ -2000,7 +2003,7 @@ function netAgg(st) {
 }
 function netInsert(st, id, n) {
   const ms = maxStack(id);
-  for (const d of st.drives) for (const c of d.cells || []) if (c && n > 0) { const room = CELL_CAP - (c.tot || 0); if (room > 0) { const t = Math.min(room, n); c.items[id] = (c.items[id] || 0) + t; c.tot = (c.tot || 0) + t; n -= t; } }
+  for (const d of st.drives) for (const c of d.cells || []) if (c && n > 0) { const room = cellCap(c) - (c.tot || 0); if (room > 0) { const t = Math.min(room, n); c.items[id] = (c.items[id] || 0) + t; c.tot = (c.tot || 0) + t; n -= t; } }
   for (const c of st.chests) for (let i = 0; i < c.slots.length && n > 0; i++) { const s = c.slots[i]; if (s && s.id === id && s.n < ms) { const t = Math.min(ms - s.n, n); s.n += t; n -= t; } }
   for (const c of st.chests) for (let i = 0; i < c.slots.length && n > 0; i++) if (!c.slots[i]) { const t = Math.min(ms, n); c.slots[i] = { id, n: t }; n -= t; }
   return n;
@@ -2035,7 +2038,7 @@ function runAC(st, id, qty) {
 function renderME(box, te) {
   const st = netStores(cont.key); const agg = netAgg(st); let used = 0, tot = 0, cu = 0, cc = 0;
   for (const c of st.chests) for (const s of c.slots) { tot++; if (s) used++; }
-  for (const d of st.drives) for (const c of d.cells || []) if (c) { cc += CELL_CAP; cu += c.tot || 0; }
+  for (const d of st.drives) for (const c of d.cells || []) if (c) { cc += cellCap(c); cu += c.tot || 0; }
   const tabs = document.createElement("div"); tabs.id = "chips";
   for (const [k, n] of [["store", "Хранилище"], ["craft", "Автокрафт"]]) { const b = document.createElement("button"); b.textContent = n; if ((G.meTab || "store") === k) b.className = "on"; b.addEventListener("click", () => { G.meTab = k; refreshRecipes(); }); tabs.appendChild(b); }
   box.appendChild(tabs);
@@ -2064,12 +2067,12 @@ function renderDrive(box, te) {
     const mid = document.createElement("div"); mid.className = "mid";
     if (c) {
       const top = Object.keys(c.items).sort((a, b) => c.items[b] - c.items[a]).slice(0, 3).map((k) => iname(+k) + " " + c.items[k]).join(", ") || "пусто";
-      mid.innerHTML = `<b>Ячейка ${i + 1}</b> · ${c.tot || 0}/${CELL_CAP}<div style="height:6px;border-radius:4px;background:#0006;margin:4px 0"><div style="height:100%;border-radius:4px;width:${Math.min(100, (c.tot || 0) / CELL_CAP * 100)}%;background:linear-gradient(90deg,#5ad1ff,#5fe08a)"></div></div><span style="font-size:11px;color:var(--dim)">${top}</span>`;
+      mid.innerHTML = `<b>Ячейка ${i + 1}</b> · ${c.tot || 0}/${cellCap(c)}<div style="height:6px;border-radius:4px;background:#0006;margin:4px 0"><div style="height:100%;border-radius:4px;width:${Math.min(100, (c.tot || 0) / CELL_CAP * 100)}%;background:linear-gradient(90deg,#5ad1ff,#5fe08a)"></div></div><span style="font-size:11px;color:var(--dim)">${top}</span>`;
     } else mid.innerHTML = `<b>Ячейка ${i + 1}</b> <span style="color:var(--dim);font-size:11px">пусто</span>`;
     row.appendChild(mid);
     const b = document.createElement("button"); b.className = "craft";
-    if (!c) { b.textContent = "Вставить"; b.disabled = countItem(I.CELL) < 1; b.addEventListener("click", () => { removeItem(I.CELL, 1); te.cells[i] = { items: {}, tot: 0 }; syncTE(te); refreshUI(); G.dirtySave = true; }); }
-    else { b.textContent = (c.tot || 0) ? "Занята" : "Извлечь"; b.disabled = (c.tot || 0) > 0; b.addEventListener("click", () => { te.cells[i] = null; addItem(I.CELL, 1); syncTE(te); refreshUI(); G.dirtySave = true; }); }
+    if (!c) { b.textContent = "Вставить"; const big = countItem(I.CELL) < 1 && countItem(I.CELL_L) > 0; b.textContent = big ? "Вставить большую" : "Вставить"; b.disabled = countItem(I.CELL) < 1 && countItem(I.CELL_L) < 1; b.addEventListener("click", () => { if (countItem(I.CELL) > 0) { removeItem(I.CELL, 1); te.cells[i] = { items: {}, tot: 0 }; } else { removeItem(I.CELL_L, 1); te.cells[i] = { items: {}, tot: 0, cap: 16384 }; } syncTE(te); refreshUI(); G.dirtySave = true; }); }
+    else { b.textContent = (c.tot || 0) ? "Занята" : "Извлечь"; b.disabled = (c.tot || 0) > 0; b.addEventListener("click", () => { addItem(c.cap ? I.CELL_L : I.CELL, 1); te.cells[i] = null; syncTE(te); refreshUI(); G.dirtySave = true; }); }
     row.appendChild(b); box.appendChild(row);
   }
 }
