@@ -1530,6 +1530,7 @@ function useBlock() {
     if (hit.id === B.PEDESTAL) { if (te.slots[0]) { addItem(te.slots[0].id, te.slots[0].n); te.slots[0] = null; syncTE(te); refreshUI(); sfx("pop"); } return; }
     cont = { key: k }; openPanel("matrix"); return;
   }
+  if (hit.id === B.CRANK) { const k = hit.x + "," + hit.y + "," + hit.z; let te = TE.get(k); if (!te) { te = newTE(hit.id, k); TE.set(k, te); } te.cr = 8; sfx("click"); toast("Рукоятка вращается…"); return; }
   if (TEDEF[hit.id]) { const k = hit.x + "," + hit.y + "," + hit.z; if (!TE.has(k)) TE.set(k, newTE(hit.id, k)); cont = { key: k }; openPanel(hit.id === B.TERMINAL ? "me" : hit.id === B.CRUCIBLE ? "cruc" : hit.id === B.DRIVE ? "drive" : hit.id === B.QBRIDGE ? "qb" : hit.id === B.JAR ? "jar" : hit.id === B.SMELTERY ? "smelt" : hit.id === B.TANK ? "tank" : hit.id === B.CAST ? "cast" : "cont"); return; }
   if (isWand(heldId())) {
     const big = heldId() === I.WAND2, rr = big ? 1 : 0; let n = 0;
@@ -1766,7 +1767,7 @@ document.addEventListener("pointerup", (e) => dragEnd(e, false), true); document
 document.addEventListener("click", (e) => { if (performance.now() - (G.openT || 0) < 450 && e.target.closest && e.target.closest("#inv")) { e.stopImmediatePropagation(); e.preventDefault(); return; } if (e.target.closest && e.target.closest(".big,.craft,.slot,.btn,.x,#chips button")) sfx("click"); }, true);
 
 // ---------- IC2: ядерный реактор, уран, радиация (Разработчик: @yfeeeee) ----------
-Object.assign(I, { CELL_L: 262, E_DRILL: 260, E_SAW: 261, U_CELL: 250, U_DEP: 251, COOLANT: 252, VENT: 253, RVENT: 254, REFLECT: 255, EXCH: 256, RAW_URAN: 257, GEIGER: 258, ING_URAN: 259 }); Object.assign(B, { COMPRESSOR: 70, URANIUM: 63, REACTOR: 64, CHARGER: 65, MFE: 66, SHAFT: 67, COGWHEEL: 68, TSTATION: 69 });
+Object.assign(I, { CELL_L: 262, E_DRILL: 260, E_SAW: 261, U_CELL: 250, U_DEP: 251, COOLANT: 252, VENT: 253, RVENT: 254, REFLECT: 255, EXCH: 256, RAW_URAN: 257, GEIGER: 258, ING_URAN: 259 }); Object.assign(B, { CRANK: 71, COMPRESSOR: 70, URANIUM: 63, REACTOR: 64, CHARGER: 65, MFE: 66, SHAFT: 67, COGWHEEL: 68, TSTATION: 69 });
 def(B.TSTATION, "Верстак инструментов", ["planks", "table_top", "table_side"], 3, { tool: 2 }); ITEMNAME[B.TSTATION] = "Верстак инструментов";
 DESC[B.TSTATION] = "Верстак инструментов (Tinkers): положи сломанный инструмент в левый слот, а в правый — слитки его материала (медь/бронза/железо/золото/тауметал). Каждый слиток чинит 25% прочности.";
 const REPAIRM = () => ({ [I.ING_COPPER]: 0, [I.ING_BRONZE]: 1, [I.ING_IRON]: 2, [I.ING_GOLD]: 3, [I.ING_THAUM]: 4 });
@@ -1803,6 +1804,10 @@ const COMPM = { [B.COBBLE]: [B.STONE, 1], [B.STONE]: [B.STONEBRICK, 1] };
 MACHS.add(B.COMPRESSOR); TEDEF[B.COMPRESSOR] = { slots: 2, energy: true, accept: (i, id) => i === 0 && !!COMPM[id], rate: 20 };
 RECIPES.push(R(B.COMPRESSOR, 1, { [B.PRESS]: 1, [I.PLATE_IRON]: 3, [B.BATTERY]: 1 }, "table"));
 LIGHTSRC[B.REACTOR] = 7;
+def(B.CRANK, "Рукоятка (Create)", ["shaft_top", "shaft_top", "shaft_side"], 2, { tool: 2 }); ITEMNAME[B.CRANK] = "Рукоятка (Create)"; ENERGY[B.CRANK] = 1;
+DESC[B.CRANK] = "Рукоятка: нажимай на неё — раскручивает вал и даёт 12 EU/с на 8 секунд. Подключается к энергосети (валы, кабели).";
+TEDEF[B.CRANK] = { slots: 0, energy: true };
+RECIPES.push(R(B.CRANK, 1, { [B.SHAFT]: 1, [I.STICK]: 2, [B.PLANKS]: 1 }, "table"));
 TEDEF[B.CHARGER] = { slots: 1, energy: true, accept: (i, id) => !!(TOOL[id] && TOOL[id].elec) }; ENERGY[B.CHARGER] = 1;
 TEDEF[B.REACTOR] = { slots: 54, energy: true, accept: (i, id) => REACT_OK.has(id) }; ENERGY[B.REACTOR] = 1;
 const HMAX = { 252: 10000, 253: 1000, 254: 1000, 256: 2500 }, RHEAT = { 252: 1, 253: 1, 254: 1, 256: 1 };
@@ -1879,6 +1884,7 @@ function teTick(dt) {
       else if (t.t === B.GENERATOR) gens.push(t);
       else if (MACHS.has(t.t)) { const j = machineJob(t); if (j) { cons.push([t, j]); req += j.rate * dt; } else t.p = 0; }
       else if (t.t === B.CHARGER) { if (t.slots[0] && t.slots[0].d > 0) { req += 30 * dt; chg.push(t); } }
+      else if (t.t === B.CRANK) { if (t.cr > 0) { prod += 12 * dt; t.cr -= dt; } }
       else if (t.t === B.REACTOR) { prod += (t.e || 0) * dt; }
       else if (t.t === B.WHEEL) { const q2 = t.k.split(",").map(Number); let w = 0; for (const d of DIRS) { if (blockAt(q2[0] + d[0], q2[1] + d[1], q2[2] + d[2]) === B.WATER) w = 1; const tq = TE.get((q2[0] + d[0]) + "," + (q2[1] + d[1]) + "," + (q2[2] + d[2])); if (tq && tq.t === B.TANK && tq.cells[0] && tq.cells[0].items.water > 0) w = 1; } t.w = w; prod += w * 12 * dt; }
       else if (t.t === B.WINDMILL) { t.skyT = (t.skyT || 0) - dt; if (t.skyT <= 0) { t.skyT = 2; const q2 = t.k.split(",").map(Number); t.sky = skyClear(q2[0], q2[1], q2[2]); t.hh = q2[1]; } t.w = t.sky ? 1 : 0; prod += t.sky ? (3 + 9 * clamp((t.hh - 20) / 40, 0, 1)) * dt : 0; }
