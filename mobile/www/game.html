@@ -389,7 +389,7 @@ const RECIPES = [
 // ---------- атлас текстур (процедурно, «векторный» cel-стиль) ----------
 const TS = 32, AT = 16;
 const CONC = { white: [236, 236, 232], red: [190, 56, 50], yellow: [236, 200, 60], orange: [228, 126, 40], green: [84, 160, 70], black: [36, 36, 42], gray: [128, 130, 134] };
-const TILE_NAMES = ["grass_top", "grass_side", "dirt", "stone", "sand", "log_side", "log_top", "leaves", "planks", "cobble", "coal", "copper", "tin", "iron", "gold", "diamond", "glass", "bedrock", "table_top", "table_side", "furnace_front", "furnace_top", "arcane_top", "arcane_side", "lamp", "water", "stonebrick", "machine_top", "gen_side", "smelter_side", "macer_side", "term_side", "battery_side", "solar_top", "crucible_top", "crucible_side", "chest_top", "chest_side", "cable", "mecable", "drive_side", "altar_top", "altar_side", "qb_side", "torch", "torch_flame", "aspipe", "jar_top", "jar_side", "snow", "cactus_top", "cactus_side", "fl_r", "fl_y", "fl_stem", "bed_top", "bed_side", "wool", "wool_r", "wool_y", "chestI_top", "chestI_side", "chestG_top", "chestG_side", "chestD_top", "chestD_side", "press_side", "mill_side", "smelt_top", "smelt_side", "tank_top", "tank_side", "cast_top", "cast_side", "wheel_top", "wheel_side", "wind_top", "wind_side", "belt_e", "belt_w", "belt_s", "belt_n", "belt_side", "rt_top", "rt_side", "uranium", "reactor_top", "reactor_side", ...Object.keys(CONC).map((k) => "conc_" + k), "shaft_top", "shaft_side", "gear_top", "gear_side"];
+const TILE_NAMES = ["grass_top", "grass_side", "dirt", "stone", "sand", "log_side", "log_top", "leaves", "planks", "cobble", "coal", "copper", "tin", "iron", "gold", "diamond", "glass", "bedrock", "table_top", "table_side", "furnace_front", "furnace_top", "arcane_top", "arcane_side", "lamp", "water", "stonebrick", "machine_top", "gen_side", "smelter_side", "macer_side", "term_side", "battery_side", "solar_top", "crucible_top", "crucible_side", "chest_top", "chest_side", "cable", "mecable", "drive_side", "altar_top", "altar_side", "qb_side", "torch", "torch_flame", "aspipe", "jar_top", "jar_side", "snow", "cactus_top", "cactus_side", "fl_r", "fl_y", "fl_stem", "bed_top", "bed_side", "wool", "wool_r", "wool_y", "chestI_top", "chestI_side", "chestG_top", "chestG_side", "chestD_top", "chestD_side", "press_side", "mill_side", "smelt_top", "smelt_side", "tank_top", "tank_side", "cast_top", "cast_side", "wheel_top", "wheel_side", "wind_top", "wind_side", "belt_e", "belt_w", "belt_s", "belt_n", "belt_side", "rt_top", "rt_side", "uranium", "reactor_top", "reactor_side", "quarry_top", "quarry_side", ...Object.keys(CONC).map((k) => "conc_" + k), "shaft_top", "shaft_side", "gear_top", "gear_side"];
 const TILE = {}; TILE_NAMES.forEach((n, i) => (TILE[n] = i));
 const tileCanvas = {};
 function mkRng(seed) { let s = seed >>> 0; return () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296); }
@@ -479,6 +479,12 @@ function genTile(name) {
     if (dir) for (let i = -10; i <= 10; i++) { const a = i * 0.9; for (let t = 0; t < 3; t++) { const cx = 15.5 + dir[0] * (i + 2) + (dir[1] ? 0 : 0), cy = 15.5 + dir[1] * (i + 2); if (i % 6 === 0) { for (let w = -5; w <= 5; w++) { const px = Math.round(cx - dir[0] * Math.abs(w) * .9 + (dir[1] ? w : 0)), py = Math.round(cy - dir[1] * Math.abs(w) * .9 + (dir[0] ? w : 0)); setpx(img, px, py, [240, 200, 70]); setpx(img, px + (dir[1] ? 0 : 0), py, [240, 200, 70]); } } } }
   }
   else if (name === "uranium") { cel(img, [128, 131, 138], 5, 11); for (let i = 0; i < 9; i++) blob(img, Math.floor(rnd() * TS), Math.floor(rnd() * TS), 2, [120, 255, 80]); for (let i = 0; i < 14; i++) setpx(img, Math.floor(rnd() * TS), Math.floor(rnd() * TS), [210, 255, 170]); }
+  else if (name === "quarry_top" || name === "quarry_side") {
+    for (let y = 0; y < TS; y++) for (let x = 0; x < TS; x++) { const st = ((x + y) >> 3) & 1; setpx(img, x, y, sh(st ? [236, 178, 36] : [60, 56, 52], .92 + hash2(x >> 2, y >> 2, 51) * .1)); }
+    for (let y = 8; y < 24; y++) for (let x = 8; x < 24; x++) setpx(img, x, y, [40, 42, 52]);
+    if (name === "quarry_top") { for (let y = 10; y < 22; y++) for (let x = 10; x < 22; x++) { const d = Math.hypot(x - 15.5, y - 15.5); if (d < 6) setpx(img, x, y, d < 2 ? [20, 20, 24] : [150, 154, 168]); } }
+    else { for (let y = 10; y < 23; y++) { const w = Math.max(1, Math.round((23 - y) / 2.4)); for (let x = 16 - w; x < 16 + w; x++) setpx(img, x, y, (y + x) % 4 < 2 ? [210, 214, 226] : [140, 144, 160]); } }
+  }
   else if (name === "reactor_top" || name === "reactor_side") {
     for (let y = 0; y < TS; y++) for (let x = 0; x < TS; x++) { const e = x < 2 || y < 2 || x > TS - 3 || y > TS - 3; setpx(img, x, y, e ? [40, 44, 52] : sh([88, 94, 108], .92 + hash2(x >> 2, y >> 2, 19) * .12)); }
     for (let x = 2; x < TS - 2; x++) for (let y = 2; y < 6; y++) if (((x + y) >> 2) % 2) setpx(img, x, y, [230, 190, 30]);
@@ -1090,6 +1096,27 @@ function drawRotors(vp, cam) {
   }
   p2xf(1, 1, 1, 0, 0, 0, 0, 0); gl.disableVertexAttribArray(L2.pos); gl.enable(gl.CULL_FACE);
 }
+function drawQuarries(vp, cam) {
+  let any = false; for (const [, t] of TE) if (t.t === B.QUARRY && t.qr && !t.qr.done) { any = true; break; } if (!any) return;
+  gl.useProgram(P2); gl.uniformMatrix4fv(L2.vp, false, vp); gl.enableVertexAttribArray(L2.pos); gl.bindBuffer(gl.ARRAY_BUFFER, cubeBuf); gl.vertexAttribPointer(L2.pos, 3, gl.FLOAT, false, 12, 0); gl.disable(gl.CULL_FACE);
+  const T = performance.now() / 1000;
+  const bx = (x, y, z, sx, sy, sz, c, yaw) => { gl.uniform4f(L2.col, c[0], c[1], c[2], 1); p2xf(sx, sy, sz, x, y, z, yaw || 0, yaw ? 1 : 0); gl.drawArrays(gl.TRIANGLES, 0, 36); };
+  for (const [k, t] of TE) {
+    const r = t.qr; if (t.t !== B.QUARRY || !r || r.done) continue; const p = k.split(",").map(Number); if (Math.abs(p[0] - P.x) > 48 || Math.abs(p[2] - P.z) > 48) continue;
+    gl.uniform3f(L2.off, r.x0 - cam[0], p[1] - cam[1], r.z0 - cam[2]);
+    const g = r.grow, g1 = clamp(g * 2, 0, 1), g2 = clamp(g * 2 - 1, 0, 1), n = QN, yb = .88, Y = [1, .82, .15];
+    bx(0, yb, 0, n * g1, .1, .14, Y); bx(0, yb, 0, .14, .1, n * g1, Y);
+    if (g2 > 0) { bx(n - n * g2, yb, n - .14, n * g2, .1, .14, Y); bx(n - .14, yb, n - n * g2, .14, .1, n * g2, Y); }
+    if (g < 1) continue;
+    const hx = r.hx - r.x0 + .5, bz = r.bz - r.z0 + .5, qy = p[1], top = .72;
+    bx(0, top - .08, bz - .17, n, .16, .34, [.62, .64, .7]); bx(-.12, top - .2, bz - .3, .24, .4, .6, [.35, .36, .42]); bx(n - .12, top - .2, bz - .3, .24, .4, .6, [.35, .36, .42]);
+    bx(hx - .28, top - .22, bz - .28, .56, .36, .56, [.3, .31, .36]);
+    const dy = r.hy - qy, len = top - .2 - (dy + .1); if (len > 0) bx(hx - .04, dy + .1, bz - .04, .08, len, .08, [.18, .18, .2]);
+    const spin = r.run ? T * 16 : 0; bx(hx, dy - .7, bz, .22, .9, .22, [.82, .84, .9], spin); bx(hx, dy - .7, bz, .22, .9, .22, [.62, .64, .72], spin + 1.5708);
+    bx(hx - .13, dy - .78, bz - .13, .26, .12, .26, [.95, .8, .2]);
+  }
+  p2xf(1, 1, 1, 0, 0, 0, 0, 0); gl.disableVertexAttribArray(L2.pos); gl.enable(gl.CULL_FACE);
+}
 // ---------- небо: солнце, луна, звёзды, облака ----------
 const STARS = (() => { const a = []; for (let i = 0; i < 90; i++) { const u = hash2(i, 3, 91) * 6.283, v = hash2(i, 5, 92) * 1.2 - .1, r = Math.cos(v); a.push([Math.cos(u) * r, Math.sin(v), Math.sin(u) * r, 1 + hash2(i, 7, 93) * 1.6]); } return a; })();
 function drawSky(vp, cam, sun, sky, camW) {
@@ -1379,6 +1406,7 @@ function sfx(k) {
   else if (k === "pickup") { if (sfxGate("pickup", 70)) { sfxTone(.07, 700, 1100, .09, "triangle"); T_(.08, 1050, 1500, .07, "triangle", 55); } }
   else if (k === "craft") { sfxTone(.05, 800, 600, .12, "square"); T_(.12, 600, 1200, .1, "triangle", 60); N_(.06, 1500, 800, .1, "bandpass", 30); }
   else if (k === "zap") { sfxTone(.22, 1400, 160, .16, "sawtooth"); sfxNoise(.18, 5000, 600, .14, "bandpass"); T_(.15, 700, 90, .1, "square", 40); }
+  else if (k === "drill") { if (sfxGate("drill", 90)) { N_(.12, 900, 300, .07, "bandpass", 0); T_(.1, 140, 90, .05, "sawtooth", 0); T_(.08, 220, 160, .03, "square", 40); } }
   else if (k === "gather") { if (sfxGate("gather", 120)) { [523, 659, 784, 1046].forEach((f, i) => T_(.28, f, f * 1.01, .09, "sine", i * 55)); N_(.3, 6000, 3000, .035, "highpass", 0); } }
   else if (k === "scribe") { for (let i = 0; i < 12; i++) N_(.03 + Math.random() * .04, 2600 + Math.random() * 2200, 1800, .13, "bandpass", i * (85 + Math.random() * 40)); }
   else if (k === "research") { [392, 494, 587, 784, 988, 1175].forEach((f, i) => { T_(.9, f, f, .1, "sine", i * 120); T_(.7, f * 2, f * 2, .03, "triangle", i * 120 + 20); }); N_(1.1, 7000, 2500, .04, "highpass", 500); }
@@ -1789,7 +1817,7 @@ document.addEventListener("pointerup", (e) => dragEnd(e, false), true); document
 document.addEventListener("click", (e) => { if (performance.now() - (G.openT || 0) < 450 && e.target.closest && e.target.closest("#inv")) { e.stopImmediatePropagation(); e.preventDefault(); return; } if (e.target.closest && e.target.closest(".big,.craft,.slot,.btn,.x,#chips button")) sfx("click"); }, true);
 
 // ---------- IC2: ядерный реактор, уран, радиация (Разработчик: @yfeeeee) ----------
-Object.assign(I, { CELL_L: 262, E_DRILL: 260, E_SAW: 261, U_CELL: 250, U_DEP: 251, COOLANT: 252, VENT: 253, RVENT: 254, REFLECT: 255, EXCH: 256, RAW_URAN: 257, GEIGER: 258, ING_URAN: 259 }); Object.assign(B, { SLAB_PL: 72, SLAB_CO: 73, SLAB_SB: 74, SLAB_ST: 75, CRANK: 71, COMPRESSOR: 70, URANIUM: 63, REACTOR: 64, CHARGER: 65, MFE: 66, SHAFT: 67, COGWHEEL: 68, TSTATION: 69 });
+Object.assign(I, { CELL_L: 262, E_DRILL: 260, E_SAW: 261, U_CELL: 250, U_DEP: 251, COOLANT: 252, VENT: 253, RVENT: 254, REFLECT: 255, EXCH: 256, RAW_URAN: 257, GEIGER: 258, ING_URAN: 259 }); Object.assign(B, { QUARRY: 83, SLAB_PL: 72, SLAB_CO: 73, SLAB_SB: 74, SLAB_ST: 75, CRANK: 71, COMPRESSOR: 70, URANIUM: 63, REACTOR: 64, CHARGER: 65, MFE: 66, SHAFT: 67, COGWHEEL: 68, TSTATION: 69 });
 def(B.TSTATION, "Верстак инструментов", ["planks", "table_top", "table_side"], 3, { tool: 2 }); ITEMNAME[B.TSTATION] = "Верстак инструментов";
 DESC[B.TSTATION] = "Верстак инструментов (Tinkers): положи сломанный инструмент в левый слот, а в правый — слитки его материала (медь/бронза/железо/золото/тауметал). Каждый слиток чинит 25% прочности.";
 const REPAIRM = () => ({ [I.ING_COPPER]: 0, [I.ING_BRONZE]: 1, [I.ING_IRON]: 2, [I.ING_GOLD]: 3, [I.ING_THAUM]: 4 });
@@ -1831,13 +1859,42 @@ for (const [k, nm] of [["white", "белый"], ["red", "красный"], ["yel
 }
 RECIPES.push(R(B.CONC_white, 4, { [B.STONE]: 2, [B.SAND]: 1 }, "table"));
 RECIPES.push(R(B.CONC_red, 4, { [B.CONC_white]: 4, [B.FLOWER_R]: 1 }, "table"), R(B.CONC_yellow, 4, { [B.CONC_white]: 4, [B.FLOWER_Y]: 1 }, "table"), R(B.CONC_orange, 4, { [B.CONC_white]: 4, [B.FLOWER_R]: 1, [B.FLOWER_Y]: 1 }, "table"), R(B.CONC_green, 4, { [B.CONC_white]: 4, [B.LEAVES]: 1 }, "table"), R(B.CONC_black, 4, { [B.CONC_white]: 4, [I.COAL]: 1 }, "table"), R(B.CONC_gray, 4, { [B.CONC_white]: 2, [B.CONC_black]: 2 }, "table"));
+def(B.QUARRY, "Карьер", ["quarry_top", "quarry_top", "quarry_side"], 6, { tool: 1, need: 1 }); ITEMNAME[B.QUARRY] = "Карьер"; ENERGY[B.QUARRY] = 1;
+DESC[B.QUARRY] = "Карьер (IC2): копает квадрат 11×11 под собой слой за слоем сверху вниз. Нужна энергия (кабель/генератор). Добыча идёт в соседний сундук или во внутренний буфер. Нажми на блок — состояние.";
+TEDEF[B.QUARRY] = { slots: 18, energy: true, accept: () => false };
+RECIPES.push(R(B.QUARRY, 1, { [I.GEAR]: 3, [I.PLATE_IRON]: 5, [B.BATTERY]: 1, [I.ING_BRONZE]: 2, [I.PICK_IRON]: 1 }, "table"));
+const QN = 11, QPOWER = 45;
+function qrInit(t) { const q = t.k.split(",").map(Number); t.qr = { x0: q[0] - 5, z0: q[2] - 5, y: q[1] - 1, idx: 0, tm: 0, bz: q[2] - 5, hx: q[0] - 5, hy: q[1] - .5, grow: 0, done: false, run: 0, mined: 0 }; }
+function qrCell(r) { const iz = Math.floor(r.idx / QN), im = r.idx % QN, ix = iz % 2 ? QN - 1 - im : im; return [r.x0 + ix, r.z0 + iz]; }
+function qrStore(t, id) {
+  const q = t.k.split(",").map(Number);
+  for (const d of DIRS) { const nt = TE.get((q[0] + d[0]) + "," + (q[1] + d[1]) + "," + (q[2] + d[2])); if (nt && CHESTS.has(nt.t) && qrPut(nt, id)) return true; }
+  return qrPut(t, id);
+}
+function qrPut(t, id) { for (const sl of t.slots) if (sl && sl.id === id && sl.n < 64) { sl.n++; return true; } for (let i = 0; i < t.slots.length; i++) if (!t.slots[i]) { t.slots[i] = { id, n: 1 }; return true; } return false; }
+function qrWants(t) { if (NET.ws) return false; if (!t.qr) qrInit(t); const r = t.qr; if (r.done) return false; return !t.full; }
+function qrAdvance(t, dt) {
+  const r = t.qr, q = t.k.split(",").map(Number); r.run = 1; r.grow = Math.min(1, r.grow + dt / 1.6); if (r.grow < 1) return;
+  const [cx, cz] = qrCell(r), sp = 7 * dt;
+  r.bz += clamp(cz - r.bz, -sp, sp); r.hx += clamp(cx - r.hx, -sp, sp); r.hy += clamp(r.y - r.hy, -sp * 1.3, sp * 1.3);
+  if (Math.abs(r.bz - cz) > .12 || Math.abs(r.hx - cx) > .12 || Math.abs(r.hy - r.y) > .12) return;
+  const b = blockAt(cx, r.y, cz); if (b === -1) return;
+  if (b === 0 || b === B.WATER || b === B.BEDROCK) r.tm += dt * 14; else r.tm += dt * 3.2;
+  if (r.tm < 1) { if (b > 0 && b !== B.WATER && b !== B.BEDROCK && Math.random() < dt * 30) fxOne(cx + .5, r.y + .6, cz + .5, (Math.random() - .5) * 2, 1.5 + Math.random(), (Math.random() - .5) * 2, .5, [.6, .5, .4], .07, 1, 1); return; }
+  r.tm = 0;
+  if (b > 0 && b !== B.WATER && b !== B.BEDROCK) {
+    const dr = BD[b] ? BD[b].drop : 0; if (dr && !qrStore(t, dr)) { t.full = true; return; }
+    setBlock(cx, r.y, cz, 0); r.mined++; sfx("drill"); fxBurst(cx + .5, r.y + .5, cz + .5, 6, [.6, .5, .4], 3, .5, .08);
+  }
+  r.idx++; if (r.idx >= QN * QN) { r.idx = 0; r.y--; if (r.y < 1) { r.done = true; r.run = 0; toast("Карьер закончил работу"); } }
+}
 const SLABS = new Set();
 for (const [sl, base, nm] of [["SLAB_PL", "PLANKS", "Доски"], ["SLAB_CO", "COBBLE", "Булыжник"], ["SLAB_SB", "STONEBRICK", "Каменные кирпичи"], ["SLAB_ST", "STONE", "Камень"]]) {
   const id = B[sl]; def(id, "Плита: " + nm.toLowerCase(), BD[B[base]].tiles, BD[B[base]].hard * .6, { tool: BD[B[base]].tool, need: BD[B[base]].need }); OPAQUE[id] = 0; SLABS.add(id); ITEMNAME[id] = "Плита: " + nm.toLowerCase();
   DESC[id] = "Плита — половина блока. Можно ходить по ступенькам, не прыгая. Крафт: 3 блока → 6 плит.";
   RECIPES.push(R(id, 6, { [B[base]]: 3 }, "table"));
 }
-for (const k of ["GENERATOR", "MACERATOR", "SMELTER", "PRESS", "MILL", "COMPRESSOR", "CHARGER", "BATTERY", "MFE", "REACTOR"]) if (B[k]) { MODELED.add(B[k]); OPAQUE[B[k]] = 0; }
+for (const k of ["QUARRY", "GENERATOR", "MACERATOR", "SMELTER", "PRESS", "MILL", "COMPRESSOR", "CHARGER", "BATTERY", "MFE", "REACTOR"]) if (B[k]) { MODELED.add(B[k]); OPAQUE[B[k]] = 0; }
 def(B.CRANK, "Рукоятка (Create)", ["shaft_top", "shaft_top", "shaft_side"], 2, { tool: 2 }); ITEMNAME[B.CRANK] = "Рукоятка (Create)"; ENERGY[B.CRANK] = 1;
 DESC[B.CRANK] = "Рукоятка: нажимай на неё — раскручивает вал и даёт 12 EU/с на 8 секунд. Подключается к энергосети (валы, кабели).";
 TEDEF[B.CRANK] = { slots: 0, energy: true };
@@ -1963,11 +2020,12 @@ function teTick(dt) {
       const cur = q.pop(), p = cur.split(",").map(Number), t = TE.get(cur); if (t) comp.push(t);
       for (const d of DIRS) { const nk = (p[0] + d[0]) + "," + (p[1] + d[1]) + "," + (p[2] + d[2]); if (cells.has(nk)) continue; const b = blockAt(p[0] + d[0], p[1] + d[1], p[2] + d[2]); if (b > 0 && ENERGY[b]) { cells.add(nk); seen.add(nk); q.push(nk); } }
     }
-    let req = 0, batE = 0, batCap = 0, prod = 0; const bats = [], gens = [], cons = [], chg = [];
+    let req = 0, batE = 0, batCap = 0, prod = 0; const bats = [], gens = [], cons = [], chg = [], qrs = [];
     for (const t of comp) {
       if (t.t === B.BATTERY || t.t === B.MFE) { bats.push(t); batE += t.e; batCap += t.t === B.MFE ? 40000 : BAT_CAP; }
       else if (t.t === B.GENERATOR) gens.push(t);
       else if (MACHS.has(t.t)) { const j = machineJob(t); if (j) { cons.push([t, j]); req += j.rate * dt; } else t.p = 0; }
+      else if (t.t === B.QUARRY) { if (t.full && t.slots.some((x) => !x)) t.full = false; if (qrWants(t)) { req += QPOWER * dt; qrs.push(t); } else if (t.qr) t.qr.run = 0; }
       else if (t.t === B.CHARGER) { if (t.slots[0] && t.slots[0].d > 0) { req += 30 * dt; chg.push(t); } }
       else if (t.t === B.CRANK) { if (t.cr > 0) { prod += 12 * dt; t.cr -= dt; } }
       else if (t.t === B.REACTOR) { prod += (t.e || 0) * dt; }
@@ -1983,6 +2041,7 @@ function teTick(dt) {
     const total = prod + batE, used = Math.min(total, req), eff = req > 0 ? used / req : 0, stored = Math.min(total - used, batCap);
     for (const b of bats) b.e = stored * ((b.t === B.MFE ? 40000 : BAT_CAP) / batCap);
     for (const t of chg) t.slots[0].d = Math.max(0, t.slots[0].d - 40 * dt * eff);
+    for (const t of qrs) { if (eff > .05) qrAdvance(t, dt * eff); else if (t.qr) t.qr.run = 0; }
     for (const [t, j] of cons) { t.p += dt * eff; if (t.p >= 4) { t.p = 0; t.slots[0].n--; if (t.slots[0].n <= 0) t.slots[0] = null; const o = t.slots[1]; if (o) o.n += j.n; else t.slots[1] = { id: j.out, n: j.n }; } }
     const info = { prod: prod / dt, use: used / dt, stored, cap: batCap }; for (const t of comp) t.info = info;
   }
@@ -2063,7 +2122,7 @@ function renderSpecial(box) {
     if (te.t === B.REACTOR) renderReactorUI(box, te); else note(box, lines.join("<br>"));
   }
   if (D.slots) {
-    note(box, CHESTS.has(te.t) ? "Выбери предмет слева, затем нажми на ячейку здесь. Нажми на предмет здесь — заберёшь." : te.t === B.SMELTERY ? "Слева — руда, пыль или слитки для плавки, справа — топливо (уголь). Металл стекает в резервуары рядом." : te.t === B.TSTATION ? "Слева — инструмент для ремонта, справа — слитки его материала (каждый чинит 25%). Выбери предмет в инвентаре и нажми на ячейку." : D.slots === 2 ? "Слева — вход, справа — результат. Выбери предмет в инвентаре и нажми на вход." : "Выбери предмет в инвентаре, затем нажми на ячейку.");
+    note(box, CHESTS.has(te.t) ? "Выбери предмет слева, затем нажми на ячейку здесь. Нажми на предмет здесь — заберёшь." : te.t === B.QUARRY ? (NET.ws ? "В мультиплеере карьер пока не работает." : (te.qr ? `Слой Y=${te.qr.y} · добыто ${te.qr.mined} блоков · ${te.qr.done ? "работа закончена" : te.full ? "БУФЕР ПОЛОН — освободи место" : te.qr.run ? "копает" : "ждёт энергию"}. ` : "Подключи к энергосети (45 EU/с) — карьер начнёт копать квадрат 11×11. ") + "Добыча падает в соседний сундук или сюда.") : te.t === B.SMELTERY ? "Слева — руда, пыль или слитки для плавки, справа — топливо (уголь). Металл стекает в резервуары рядом." : te.t === B.TSTATION ? "Слева — инструмент для ремонта, справа — слитки его материала (каждый чинит 25%). Выбери предмет в инвентаре и нажми на ячейку." : D.slots === 2 ? "Слева — вход, справа — результат. Выбери предмет в инвентаре и нажми на вход." : "Выбери предмет в инвентаре, затем нажми на ячейку.");
     const g = document.createElement("div"); const cols = te.t === B.REACTOR ? 9 : D.slots > 54 ? 9 : D.slots > 9 ? 6 : D.slots; g.style.cssText = `display:grid;grid-template-columns:repeat(${cols},1fr);gap:5px;max-width:${D.slots > 9 ? "100%" : 70 * D.slots + "px"}`;
     for (let i = 0; i < D.slots; i++) g.appendChild(slotBtn(te.slots[i], () => tapCont(i), !CHESTS.has(te.t) && D.slots === 2 && te.t !== B.TSTATION && te.t !== B.SMELTERY && i === 1 ? ";border-color:#5fe08a" : (te.t === B.SMELTERY && i === 1 ? ";border-color:#ff9a3a" : "")));
     box.appendChild(g);
@@ -2536,7 +2595,7 @@ function frame(now) {
     if (c.xcount) { gl.bindBuffer(gl.ARRAY_BUFFER, c.xvbo); gl.vertexAttribPointer(L1.pos, 4, gl.FLOAT, false, 24, 0); gl.vertexAttribPointer(L1.uv, 2, gl.FLOAT, false, 24, 16); gl.drawArrays(gl.TRIANGLES, 0, c.xcount); }
   }
   gl.disableVertexAttribArray(L1.uv);
-  drawOthers(vp, cam); drawMobs(vp, cam); drawNodes(vp, cam); drawTEItems(vp, cam); drawRotors(vp, cam); drawFX(vp, cam, dt);
+  drawOthers(vp, cam); drawMobs(vp, cam); drawNodes(vp, cam); drawTEItems(vp, cam); drawRotors(vp, cam); drawQuarries(vp, cam); drawFX(vp, cam, dt);
   if (vis.length) {
     gl.useProgram(P1); gl.enableVertexAttribArray(L1.pos); gl.enableVertexAttribArray(L1.uv); gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); gl.depthMask(false); gl.disable(gl.CULL_FACE); gl.uniform1f(L1.alpha, .62); gl.uniform1f(L1.wv, 1);
     for (const c of vis) { gl.uniform3f(L1.off, c.cx * CS - cam[0], -cam[1], c.cz * CS - cam[2]); gl.bindBuffer(gl.ARRAY_BUFFER, c.wvbo); gl.vertexAttribPointer(L1.pos, 4, gl.UNSIGNED_BYTE, false, 8, 0); gl.vertexAttribPointer(L1.uv, 2, gl.UNSIGNED_SHORT, true, 8, 4); gl.drawArrays(gl.TRIANGLES, 0, c.wcount); }
