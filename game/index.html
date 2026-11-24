@@ -861,6 +861,9 @@ function buildMesh(c) {
     const id = bl[cidx(x, y, z)]; if (id === 0) continue;
     const d = BD[id], isW = id === B.WATER, T = isW ? W : S;
     if (id === B.COOLER) { const t1 = TILE.cooler_side, a0 = (t1 % AT) * inv, a1 = Math.floor(t1 / AT) * inv; emitBox(X, x, y, z, .06, 0, .06, .94, 1, .94, a0, a1, inv); for (let i = 0; i < 4; i++) emitBox(X, x, y, z, 0, .08 + i * .24, 0, 1, .16 + i * .24, 1, a0, a1, inv); continue; }
+    if (id === B.FENCE) { const t1 = TILE.planks, a0 = (t1 % AT) * inv, a1 = Math.floor(t1 / AT) * inv; emitBox(X, x, y, z, .375, 0, .375, .625, 1, .625, a0, a1, inv);
+      const fn = (dx, dz) => { const n = get(x + dx, y, z + dz); return n === B.FENCE || (n && OPAQUE[n]); };
+      for (const yy of [.3, .65]) { if (fn(1, 0)) emitBox(X, x, y, z, .625, yy, .44, 1, yy + .16, .56, a0, a1, inv); if (fn(-1, 0)) emitBox(X, x, y, z, 0, yy, .44, .375, yy + .16, .56, a0, a1, inv); if (fn(0, 1)) emitBox(X, x, y, z, .44, yy, .625, .56, yy + .16, 1, a0, a1, inv); if (fn(0, -1)) emitBox(X, x, y, z, .44, yy, 0, .56, yy + .16, .375, a0, a1, inv); } continue; }
     if (SLABS.has(id)) { const t1 = TILE[d.tiles[2]]; emitBox(X, x, y, z, 0, 0, 0, 1, .5, 1, (t1 % AT) * inv, Math.floor(t1 / AT) * inv, inv); continue; }
     if (MODELED.has(id)) {
       const tt0 = TILE[d.tiles[0]], ts0 = TILE[d.tiles[2]], tA = [(tt0 % AT) * inv, Math.floor(tt0 / AT) * inv], tB = [(ts0 % AT) * inv, Math.floor(ts0 / AT) * inv];
@@ -1925,6 +1928,8 @@ for (const [sl, base, nm] of [["SLAB_PL", "PLANKS", "Доски"], ["SLAB_CO", "
   DESC[id] = "Плита — половина блока. Можно ходить по ступенькам, не прыгая. Крафт: 3 блока → 6 плит.";
   RECIPES.push(R(id, 6, { [B[base]]: 3 }, "table"));
 }
+B.FENCE = 89; def(89, "Забор", ["planks", "planks", "planks"], 2, { tool: 0 }); OPAQUE[89] = 0; ITEMNAME[89] = "Забор"; DESC[89] = "Деревянный забор: тонкий столб с перекладинами, соединяется с соседними заборами и стенами.";
+RECIPES.push(R(89, 3, { [B.PLANKS]: 2, [I.STICK]: 2 }, "table"));
 for (const k of ["QUARRY", "GENERATOR", "MACERATOR", "SMELTER", "PRESS", "MILL", "COMPRESSOR", "CHARGER", "BATTERY", "MFE", "REACTOR"]) if (B[k]) { MODELED.add(B[k]); OPAQUE[B[k]] = 0; }
 def(B.CRANK, "Рукоятка (Create)", ["shaft_top", "shaft_top", "shaft_side"], 2, { tool: 2 }); ITEMNAME[B.CRANK] = "Рукоятка (Create)"; ENERGY[B.CRANK] = 1;
 DESC[B.CRANK] = "Рукоятка: нажимай на неё — раскручивает вал и даёт 12 EU/с на 8 секунд. Подключается к энергосети (валы, кабели).";
