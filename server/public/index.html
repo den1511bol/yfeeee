@@ -193,6 +193,9 @@ h1{margin:0 0 4px;font-size:34px;letter-spacing:.5px;background:linear-gradient(
   <p><b>Управление предметами.</b> Нажми на предмет — он подсветится, внизу появится название и описание. Затем нажми на нужную ячейку (в сундуке, машине или инвентаре) — предмет переложится. Можно и перетащить предмет пальцем на другую ячейку. Повторное нажатие на ту же ячейку в контейнере забирает предмет себе.</p>
   <p><b>Ядерный реактор (IC2).</b> Реактор: генератор + 8 железных пластин + шестерня. Топливо — урановая ячейка (слиток урана из руды на глубине + пластина). Сетка 9×6: соседние ячейки и отражатели дают импульсы (больше энергии, но и тепла). Охлаждай радиаторами, охлаждающими ячейками и теплообменниками. Нагрев 10000 — взрыв и радиоактивная зона. Радиация копится от урана в рюкзаке и заражённых мест; защита — радиационный костюм (жёлтая шерсть). Счётчик Гейгера в руке показывает уровень.</p>
   <p><b>Электроинструменты.</b> Электробур и электропила (батарея + пластины + шестерни + бронза) — очень быстрые, но разряжаются. Заряжай на зарядной станции, подключённой к энергосети.</p>
+  <p><b>Реактор.</b> Стержни видны сверху на реакторе. Радиаторы охлаждения (вплотную к реактору, до 6) отводят тепло. Счётчик Гейгера встроен: щёлкает рядом с любым излучением, доза и скорость видны в полоске ☢. Урановую руду можно добывать только в полном радиационном костюме. Взрыв реактора даёт ядерный гриб и заражает местность.</p>
+  <p><b>Карьер.</b> Копает квадрат 11×11 вниз от своего уровня, питается от энергосети, складывает добычу в соседний сундук.</p>
+  <p><b>Стройка и погода.</b> Плиты (половина блока, по ним можно ходить без прыжка), цветной бетон, бег (держи джойстик вперёд), автопрыжок. Иногда идёт дождь, бывает гроза.</p>
   <p><b>Машины.</b> Компрессор: булыжник → камень → каменные кирпичи. МФЭ хранит 40000 EU. Рукоятка (Create): нажми на неё — вал даст 12 EU/с на 8 секунд; валы и шестерни работают как кабели.</p>
   <p><b>Tinkers.</b> Верстак инструментов чинит сломанные инструменты слитками их материала. Алмаз тоже можно расплавить и отлить в головку инструмента.</p>
   <p><b>Thaumcraft и ME.</b> Тауметаллическая броня и большая ячейка ME (16К) требуют исследований «Тауметаллическая броня» и «Большие ячейки».</p>
@@ -389,7 +392,7 @@ const RECIPES = [
 // ---------- атлас текстур (процедурно, «векторный» cel-стиль) ----------
 const TS = 32, AT = 16;
 const CONC = { white: [236, 236, 232], red: [190, 56, 50], yellow: [236, 200, 60], orange: [228, 126, 40], green: [84, 160, 70], black: [36, 36, 42], gray: [128, 130, 134] };
-const TILE_NAMES = ["grass_top", "grass_side", "dirt", "stone", "sand", "log_side", "log_top", "leaves", "planks", "cobble", "coal", "copper", "tin", "iron", "gold", "diamond", "glass", "bedrock", "table_top", "table_side", "furnace_front", "furnace_top", "arcane_top", "arcane_side", "lamp", "water", "stonebrick", "machine_top", "gen_side", "smelter_side", "macer_side", "term_side", "battery_side", "solar_top", "crucible_top", "crucible_side", "chest_top", "chest_side", "cable", "mecable", "drive_side", "altar_top", "altar_side", "qb_side", "torch", "torch_flame", "aspipe", "jar_top", "jar_side", "snow", "cactus_top", "cactus_side", "fl_r", "fl_y", "fl_stem", "bed_top", "bed_side", "wool", "wool_r", "wool_y", "chestI_top", "chestI_side", "chestG_top", "chestG_side", "chestD_top", "chestD_side", "press_side", "mill_side", "smelt_top", "smelt_side", "tank_top", "tank_side", "cast_top", "cast_side", "wheel_top", "wheel_side", "wind_top", "wind_side", "belt_e", "belt_w", "belt_s", "belt_n", "belt_side", "rt_top", "rt_side", "uranium", "reactor_top", "reactor_side", "quarry_top", "quarry_side", ...Object.keys(CONC).map((k) => "conc_" + k), "shaft_top", "shaft_side", "gear_top", "gear_side"];
+const TILE_NAMES = ["grass_top", "grass_side", "dirt", "stone", "sand", "log_side", "log_top", "leaves", "planks", "cobble", "coal", "copper", "tin", "iron", "gold", "diamond", "glass", "bedrock", "table_top", "table_side", "furnace_front", "furnace_top", "arcane_top", "arcane_side", "lamp", "water", "stonebrick", "machine_top", "gen_side", "smelter_side", "macer_side", "term_side", "battery_side", "solar_top", "crucible_top", "crucible_side", "chest_top", "chest_side", "cable", "mecable", "drive_side", "altar_top", "altar_side", "qb_side", "torch", "torch_flame", "aspipe", "jar_top", "jar_side", "snow", "cactus_top", "cactus_side", "fl_r", "fl_y", "fl_stem", "bed_top", "bed_side", "wool", "wool_r", "wool_y", "chestI_top", "chestI_side", "chestG_top", "chestG_side", "chestD_top", "chestD_side", "press_side", "mill_side", "smelt_top", "smelt_side", "tank_top", "tank_side", "cast_top", "cast_side", "wheel_top", "wheel_side", "wind_top", "wind_side", "belt_e", "belt_w", "belt_s", "belt_n", "belt_side", "rt_top", "rt_side", "uranium", "reactor_top", "reactor_side", "quarry_top", "quarry_side", "cooler_side", ...Object.keys(CONC).map((k) => "conc_" + k), "shaft_top", "shaft_side", "gear_top", "gear_side"];
 const TILE = {}; TILE_NAMES.forEach((n, i) => (TILE[n] = i));
 const tileCanvas = {};
 function mkRng(seed) { let s = seed >>> 0; return () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296); }
@@ -479,6 +482,7 @@ function genTile(name) {
     if (dir) for (let i = -10; i <= 10; i++) { const a = i * 0.9; for (let t = 0; t < 3; t++) { const cx = 15.5 + dir[0] * (i + 2) + (dir[1] ? 0 : 0), cy = 15.5 + dir[1] * (i + 2); if (i % 6 === 0) { for (let w = -5; w <= 5; w++) { const px = Math.round(cx - dir[0] * Math.abs(w) * .9 + (dir[1] ? w : 0)), py = Math.round(cy - dir[1] * Math.abs(w) * .9 + (dir[0] ? w : 0)); setpx(img, px, py, [240, 200, 70]); setpx(img, px + (dir[1] ? 0 : 0), py, [240, 200, 70]); } } } }
   }
   else if (name === "uranium") { cel(img, [128, 131, 138], 5, 11); for (let i = 0; i < 9; i++) blob(img, Math.floor(rnd() * TS), Math.floor(rnd() * TS), 2, [120, 255, 80]); for (let i = 0; i < 14; i++) setpx(img, Math.floor(rnd() * TS), Math.floor(rnd() * TS), [210, 255, 170]); }
+  else if (name === "cooler_side") { for (let y = 0; y < TS; y++) for (let x = 0; x < TS; x++) { const sl = (y % 6) < 2; setpx(img, x, y, sl ? sh([60, 150, 205], .9 + hash2(x >> 1, y, 61) * .12) : sh([150, 160, 172], .95 + hash2(x >> 2, y >> 1, 62) * .1)); if (x < 2 || x > TS - 3) setpx(img, x, y, [70, 78, 90]); } }
   else if (name === "quarry_top" || name === "quarry_side") {
     for (let y = 0; y < TS; y++) for (let x = 0; x < TS; x++) { const st = ((x + y) >> 3) & 1; setpx(img, x, y, sh(st ? [236, 178, 36] : [60, 56, 52], .92 + hash2(x >> 2, y >> 2, 51) * .1)); }
     for (let y = 8; y < 24; y++) for (let x = 8; x < 24; x++) setpx(img, x, y, [40, 42, 52]);
@@ -855,11 +859,12 @@ function buildMesh(c) {
   for (let y = 0; y < WH; y++) for (let z = 0; z < CS; z++) for (let x = 0; x < CS; x++) {
     const id = bl[cidx(x, y, z)]; if (id === 0) continue;
     const d = BD[id], isW = id === B.WATER, T = isW ? W : S;
+    if (id === B.COOLER) { const t1 = TILE.cooler_side, a0 = (t1 % AT) * inv, a1 = Math.floor(t1 / AT) * inv; emitBox(X, x, y, z, .06, 0, .06, .94, 1, .94, a0, a1, inv); for (let i = 0; i < 4; i++) emitBox(X, x, y, z, 0, .08 + i * .24, 0, 1, .16 + i * .24, 1, a0, a1, inv); continue; }
     if (SLABS.has(id)) { const t1 = TILE[d.tiles[2]]; emitBox(X, x, y, z, 0, 0, 0, 1, .5, 1, (t1 % AT) * inv, Math.floor(t1 / AT) * inv, inv); continue; }
     if (MODELED.has(id)) {
       const tt0 = TILE[d.tiles[0]], ts0 = TILE[d.tiles[2]], tA = [(tt0 % AT) * inv, Math.floor(tt0 / AT) * inv], tB = [(ts0 % AT) * inv, Math.floor(ts0 / AT) * inv];
       emitBox(X, x, y, z, 0, 0, 0, 1, .13, 1, tA[0], tA[1], inv); emitBox(X, x, y, z, .06, .13, .06, .94, .82, .94, tB[0], tB[1], inv); emitBox(X, x, y, z, .015, .82, .015, .985, 1, .985, tA[0], tA[1], inv);
-      if (id === B.REACTOR) { emitBox(X, x, y, z, .3, 1, .3, .7, 1.22, .7, tB[0], tB[1], inv); emitBox(X, x, y, z, .24, 1.22, .24, .76, 1.3, .76, tA[0], tA[1], inv); }
+      if (id === B.REACTOR) { /* стержни рисуются динамически */ }
       else if (id === B.BATTERY || id === B.MFE) { emitBox(X, x, y, z, .3, 1, .3, .7, 1.1, .7, tA[0], tA[1], inv); }
       else if (id === B.GENERATOR) { emitBox(X, x, y, z, .62, 1, .62, .86, 1.28, .86, tB[0], tB[1], inv); }
       continue;
@@ -1093,6 +1098,25 @@ function drawRotors(vp, cam) {
     const wm = t.t === B.WINDMILL, c = wm ? [.92, .92, .95] : [.55, .38, .2];
     gl.uniform3f(L2.off, p[0] + .5 - cam[0], p[1] + 1.12 - cam[1], p[2] + .5 - cam[2]); gl.uniform4f(L2.col, c[0], c[1], c[2], 1);
     for (let i = 0; i < 2; i++) { p2xf(1.7, .07, .22, -.85, -.035, -.11, T * (wm ? 3 : 1.6) + i * 1.5708, 1); gl.drawArrays(gl.TRIANGLES, 0, 36); }
+  }
+  p2xf(1, 1, 1, 0, 0, 0, 0, 0); gl.disableVertexAttribArray(L2.pos); gl.enable(gl.CULL_FACE);
+}
+function drawReactorRods(vp, cam, dtv) {
+  let any = false; for (const [, t] of TE) if (t.t === B.REACTOR) { any = true; break; } if (!any) return;
+  gl.useProgram(P2); gl.uniformMatrix4fv(L2.vp, false, vp); gl.enableVertexAttribArray(L2.pos); gl.bindBuffer(gl.ARRAY_BUFFER, cubeBuf); gl.vertexAttribPointer(L2.pos, 3, gl.FLOAT, false, 12, 0); gl.disable(gl.CULL_FACE);
+  const T = performance.now() / 1000;
+  for (const [k, t] of TE) {
+    if (t.t !== B.REACTOR) continue; const p = k.split(",").map(Number); if (Math.abs(p[0] - P.x) > 40 || Math.abs(p[2] - P.z) > 40) continue;
+    let nf = 0; for (const sl of t.slots) if (sl && sl.id === 250) nf++; const on = t.freq >= 2, heat = clamp((t.p || 0) / 10000, 0, 1);
+    t.rh = (t.rh || 0) + ((on ? 1 : 0) - (t.rh || 0)) * .06;
+    gl.uniform3f(L2.off, p[0] - cam[0], p[1] + 1 - cam[1], p[2] - cam[2]);
+    const n = Math.min(nf, 9), col = heat < .5 ? [.3 + heat * 1.2, 1, .35] : [1, 1 - (heat - .5) * 1.6, .2];
+    for (let i = 0; i < n; i++) {
+      const gx = .22 + (i % 3) * .28, gz = .22 + Math.floor(i / 3) * .28, h = .1 + t.rh * (.5 + .08 * Math.sin(T * 3 + i * 1.3)), pulse = .75 + .25 * Math.sin(T * 6 + i);
+      gl.uniform4f(L2.col, .3, .32, .36, 1); p2xf(.1, .12, .1, gx - .05, 0, gz - .05, 0, 0); gl.drawArrays(gl.TRIANGLES, 0, 36);
+      gl.uniform4f(L2.col, col[0] * pulse, col[1] * pulse, col[2] * pulse, 1); p2xf(.075, h, .075, gx - .0375, .1, gz - .0375, 0, 0); gl.drawArrays(gl.TRIANGLES, 0, 36);
+      if (on && heat > .3) { gl.uniform4f(L2.col, 1, .95, .6, 1); p2xf(.05, .05, .05, gx - .025, .1 + h, gz - .025, 0, 0); gl.drawArrays(gl.TRIANGLES, 0, 36); }
+    }
   }
   p2xf(1, 1, 1, 0, 0, 0, 0, 0); gl.disableVertexAttribArray(L2.pos); gl.enable(gl.CULL_FACE);
 }
@@ -1606,6 +1630,7 @@ function mineTick(dt) {
   const hit = raycast(6);
   if (!hit) { mine.active = false; bar.classList.add("hidden"); return; }
   if (!mine.active || mine.x !== hit.x || mine.y !== hit.y || mine.z !== hit.z) { mine.x = hit.x; mine.y = hit.y; mine.z = hit.z; mine.t = 0; mine.active = true; }
+  if (hit.id === B.URANIUM && !G.creative && hazFrac() < 1) { mine.active = false; bar.classList.add("hidden"); if (performance.now() - (G.uwT || 0) > 2500) { G.uwT = performance.now(); toast("☢ Урановую руду можно добывать только в полном радиационном костюме (4 части)"); sfx("alarm"); } return; }
   mine.t += dt; const need = breakTime(hit.id);
   bar.classList.remove("hidden"); fill.style.width = clamp(mine.t / need, 0, 1) * 100 + "%";
   if (mine.t >= need) { doBreak(hit); mine.active = false; mine.t = 0; bar.classList.add("hidden"); }
@@ -1817,7 +1842,7 @@ document.addEventListener("pointerup", (e) => dragEnd(e, false), true); document
 document.addEventListener("click", (e) => { if (performance.now() - (G.openT || 0) < 450 && e.target.closest && e.target.closest("#inv")) { e.stopImmediatePropagation(); e.preventDefault(); return; } if (e.target.closest && e.target.closest(".big,.craft,.slot,.btn,.x,#chips button")) sfx("click"); }, true);
 
 // ---------- IC2: ядерный реактор, уран, радиация (Разработчик: @yfeeeee) ----------
-Object.assign(I, { CELL_L: 262, E_DRILL: 260, E_SAW: 261, U_CELL: 250, U_DEP: 251, COOLANT: 252, VENT: 253, RVENT: 254, REFLECT: 255, EXCH: 256, RAW_URAN: 257, GEIGER: 258, ING_URAN: 259 }); Object.assign(B, { QUARRY: 83, SLAB_PL: 72, SLAB_CO: 73, SLAB_SB: 74, SLAB_ST: 75, CRANK: 71, COMPRESSOR: 70, URANIUM: 63, REACTOR: 64, CHARGER: 65, MFE: 66, SHAFT: 67, COGWHEEL: 68, TSTATION: 69 });
+Object.assign(I, { CELL_L: 262, E_DRILL: 260, E_SAW: 261, U_CELL: 250, U_DEP: 251, COOLANT: 252, VENT: 253, RVENT: 254, REFLECT: 255, EXCH: 256, RAW_URAN: 257, GEIGER: 258, ING_URAN: 259 }); Object.assign(B, { COOLER: 84, QUARRY: 83, SLAB_PL: 72, SLAB_CO: 73, SLAB_SB: 74, SLAB_ST: 75, CRANK: 71, COMPRESSOR: 70, URANIUM: 63, REACTOR: 64, CHARGER: 65, MFE: 66, SHAFT: 67, COGWHEEL: 68, TSTATION: 69 });
 def(B.TSTATION, "Верстак инструментов", ["planks", "table_top", "table_side"], 3, { tool: 2 }); ITEMNAME[B.TSTATION] = "Верстак инструментов";
 DESC[B.TSTATION] = "Верстак инструментов (Tinkers): положи сломанный инструмент в левый слот, а в правый — слитки его материала (медь/бронза/железо/золото/тауметал). Каждый слиток чинит 25% прочности.";
 const REPAIRM = () => ({ [I.ING_COPPER]: 0, [I.ING_BRONZE]: 1, [I.ING_IRON]: 2, [I.ING_GOLD]: 3, [I.ING_THAUM]: 4 });
@@ -1844,7 +1869,7 @@ Object.assign(DESC, { [B.REACTOR]: "Ядерный реактор (IC2). Сет�
 function initThaumArmor() { const m = 3; ARM_MATS[m] = ["Тауметаллический", "Тауметаллические", "#8a5cff", [3, 7, 5, 3], I.ING_THAUM]; const nm = ["шлем", "нагрудник", "поножи", "ботинки"]; for (let p = 0; p < 4; p++) { const id = 210 + m * 4 + p; ITEMNAME[id] = (p < 2 ? "Тауметаллический " : "Тауметаллические ") + nm[p]; RECIPES.push(R(id, 1, { [I.ING_THAUM]: ARM_COST[p] }, "table")); DESC[id] = "Броня из тауметалла: почти как алмазная, но дешевле и с фиолетовым отливом."; } }
 function initHazmat() { for (let m = 2; m < 3; m++) { ARM_MATS[m] = ["Радиационный", "Радиационные", "#e6c21a", [1, 3, 2, 1], B.WOOL_Y]; for (let p = 0; p < 4; p++) { const id = 210 + m * 4 + p; ITEMNAME[id] = [ARM_MATS[m][0] + " шлем", ARM_MATS[m][0] + " нагрудник", ARM_MATS[m][1] + " поножи", ARM_MATS[m][1] + " ботинки"][p]; RECIPES.push(R(id, 1, { [ARM_MATS[m][4]]: ARM_COST[p] }, "table")); DESC[id] = "Часть радиационного костюма. Полный комплект полностью защищает от радиации."; } } }
 SMELT[I.RAW_URAN] = I.ING_URAN;
-RECIPES.push(R(I.U_CELL, 1, { [I.ING_URAN]: 1, [I.PLATE_IRON]: 1 }, "table"), R(I.COOLANT, 1, { [I.ING_TIN]: 3, [B.GLASS]: 1 }, "table"), R(I.VENT, 1, { [I.PLATE_IRON]: 2, [I.ING_COPPER]: 2 }, "table"), R(I.RVENT, 1, { [I.VENT]: 1, [I.PLATE_COPPER]: 2 }, "table"), R(I.REFLECT, 1, { [I.PLATE_COPPER]: 3, [I.ING_TIN]: 1 }, "table"), R(I.EXCH, 1, { [I.PLATE_COPPER]: 2, [I.ING_GOLD]: 1, [I.ING_TIN]: 1 }, "table"), R(I.GEIGER, 1, { [I.PLATE_IRON]: 2, [I.ING_GOLD]: 1, [B.GLASS]: 1 }, "table"), R(B.REACTOR, 1, { [B.GENERATOR]: 1, [I.PLATE_IRON]: 8, [I.GEAR]: 1 }, "table"));
+RECIPES.push(R(I.U_CELL, 1, { [I.ING_URAN]: 1, [I.PLATE_IRON]: 1 }, "table"), R(I.COOLANT, 1, { [I.ING_TIN]: 3, [B.GLASS]: 1 }, "table"), R(I.VENT, 1, { [I.PLATE_IRON]: 2, [I.ING_COPPER]: 2 }, "table"), R(I.RVENT, 1, { [I.VENT]: 1, [I.PLATE_COPPER]: 2 }, "table"), R(I.REFLECT, 1, { [I.PLATE_COPPER]: 3, [I.ING_TIN]: 1 }, "table"), R(I.EXCH, 1, { [I.PLATE_COPPER]: 2, [I.ING_GOLD]: 1, [I.ING_TIN]: 1 }, "table"), R(B.REACTOR, 1, { [B.GENERATOR]: 1, [I.PLATE_IRON]: 8, [I.GEAR]: 1 }, "table"));
 const REACT_OK = new Set([250, 252, 253, 254, 255, 256]);
 ITEMNAME[I.CELL_L] = "Большая ячейка ME (16К)"; DESC[I.CELL_L] = "Ячейка ME на 16384 предмета — в 8 раз больше обычной. Вставляется в привод.";
 RECIPES.push(R(I.CELL_L, 1, { [I.CELL]: 2, [B.GLASS]: 2, [I.ING_THAUM]: 1, [I.PLATE_GOLD]: 2 }, "table"));
@@ -1859,6 +1884,9 @@ for (const [k, nm] of [["white", "белый"], ["red", "красный"], ["yel
 }
 RECIPES.push(R(B.CONC_white, 4, { [B.STONE]: 2, [B.SAND]: 1 }, "table"));
 RECIPES.push(R(B.CONC_red, 4, { [B.CONC_white]: 4, [B.FLOWER_R]: 1 }, "table"), R(B.CONC_yellow, 4, { [B.CONC_white]: 4, [B.FLOWER_Y]: 1 }, "table"), R(B.CONC_orange, 4, { [B.CONC_white]: 4, [B.FLOWER_R]: 1, [B.FLOWER_Y]: 1 }, "table"), R(B.CONC_green, 4, { [B.CONC_white]: 4, [B.LEAVES]: 1 }, "table"), R(B.CONC_black, 4, { [B.CONC_white]: 4, [I.COAL]: 1 }, "table"), R(B.CONC_gray, 4, { [B.CONC_white]: 2, [B.CONC_black]: 2 }, "table"));
+def(B.COOLER, "Радиатор охлаждения", ["cooler_side", "cooler_side", "cooler_side"], 5, { tool: 1, need: 1 }); ITEMNAME[B.COOLER] = "Радиатор охлаждения"; DESC[B.COOLER] = "Радиатор: ставь вплотную к реактору — каждый отводит 12 ед. тепла в секунду (до 6 штук вокруг). Реактор перегревается медленнее.";
+RECIPES.push(R(B.COOLER, 2, { [I.PLATE_COPPER]: 4, [I.ING_TIN]: 2, [B.GLASS]: 1 }, "table"));
+OPAQUE[B.COOLER] = 0;
 def(B.QUARRY, "Карьер", ["quarry_top", "quarry_top", "quarry_side"], 6, { tool: 1, need: 1 }); ITEMNAME[B.QUARRY] = "Карьер"; ENERGY[B.QUARRY] = 1;
 DESC[B.QUARRY] = "Карьер (IC2): копает квадрат 11×11 под собой слой за слоем сверху вниз. Нужна энергия (кабель/генератор). Добыча идёт в соседний сундук или во внутренний буфер. Нажми на блок — состояние.";
 TEDEF[B.QUARRY] = { slots: 18, energy: true, accept: () => false };
@@ -1919,23 +1947,25 @@ function reactorStep(te) {
     else if (k.id === 256) { for (const n of nbs(r, c)) if (RHEAT[n.s.id]) { n.s.h = n.s.h || 0; const d = (n.s.h / HMAX[n.s.id] - k.h / 2500) * 400, t = Math.max(-4, Math.min(4, d)); n.s.h -= t; k.h += t; } const t2 = Math.min(4, hull); hull -= t2; k.h += t2; }
     if (k.h >= HMAX[k.id]) s[r * W + c] = null;
   }
-  hull += hullAdd; if (!on) hull -= 2; te.p = Math.max(0, hull); te.e = on ? eu : 0;
+  hull -= (te.cool || 0) * 12; hull += hullAdd; if (!on) hull -= 2; te.p = Math.max(0, hull); te.e = on ? eu : 0;
 }
+const coolCount = (k) => { const q = k.split(",").map(Number); let n = 0; for (const d of DIRS) if (blockAt(q[0] + d[0], q[1] + d[1], q[2] + d[2]) === B.COOLER) n++; return n; };
 const RADI = { [I.RAW_URAN]: .05, [I.ING_URAN]: .08, [I.U_CELL]: .25, [I.U_DEP]: .4, [B.URANIUM]: .06 };
 G.rad = 0; G.radZones = [];
 const hazFrac = () => { let n = 0; for (const a of G.armor) if (a && a.id >= 218 && a.id < 222) n++; return n / 4; };
-const hasGeiger = () => { for (const s of inv) if (s && s.id === I.GEIGER) return true; return false; };
+const hasGeiger = () => true; // счётчик Гейгера встроен
+function uranNear() { G.unT = (G.unT || 0) - 1; if (G.unT > 0) return G.unR || 0; G.unT = 30; const x0 = Math.floor(P.x), y0 = Math.floor(P.y + 1), z0 = Math.floor(P.z); let r = 0; for (let dx = -5; dx <= 5; dx++) for (let dy = -4; dy <= 4; dy++) for (let dz = -5; dz <= 5; dz++) if (blockAt(x0 + dx, y0 + dy, z0 + dz) === B.URANIUM) r += .5 / (1 + (dx * dx + dy * dy + dz * dz) * .5); G.unR = Math.min(r, 3); return G.unR; }
 function radTick(dt) {
   if (G.creative || G.dead) { G.rad = 0; G.radRate = 0; return; }
   let rate = 0; for (const s of inv) if (s && RADI[s.id]) rate += RADI[s.id] * Math.min(s.n, 8);
   for (let i = G.radZones.length - 1; i >= 0; i--) { const z = G.radZones[i]; z.t -= dt; if (z.t <= 0) { G.radZones.splice(i, 1); continue; } const d = Math.hypot(z.x - P.x, z.z - P.z); if (d < z.r) rate += 2.2 * (1 - d / z.r); }
   for (const [k, t] of TE) if (t.t === B.REACTOR && t.freq >= 2 && t.p > 5000) { const q = k.split(",").map(Number); if (Math.hypot(q[0] - P.x, q[2] - P.z) < 7) rate += (t.p - 5000) / 5000 * 1.2; }
-  rate *= 1 - hazFrac(); G.radRate = rate; G.rad = Math.max(0, Math.min(100, G.rad + (rate - .1) * dt));
+  rate += uranNear(); rate *= 1 - hazFrac(); G.radRate = rate; G.rad = Math.max(0, Math.min(100, G.rad + (rate - .1) * dt));
   G.radT = (G.radT || 0) + dt;
   if (G.rad > 50 && G.radT > (G.rad > 80 ? 2 : 5)) { G.radT = 0; damagePlayer(1); }
   if (G.rad > 25) G.hunger = Math.max(0, G.hunger - dt * .05);
   const rb = $("rd"); if (rb) { rb.style.display = G.rad > 1 || rate > 0 ? "" : "none"; rb.firstChild.style.width = G.rad + "%"; rb.lastChild.textContent = "☢ " + Math.round(G.rad) + (hasGeiger() ? " · " + rate.toFixed(1) + "/с" : ""); }
-  if (hasGeiger()) { G.gT = (G.gT || 0) - dt; const mean = .15 + rate * 3; if (G.gT <= 0) { G.gT = Math.max(.04, 1 / (mean * (.5 + Math.random()))); sfx("geiger"); } $("hint2") && 0; G.geigerTxt = "☢ " + rate.toFixed(2) + " /с"; toastGeiger(); }
+  if (hasGeiger()) { G.gT = (G.gT || 0) - dt; const mean = .2 + rate * 3; if (G.gT <= 0 && rate > .02) { G.gT = Math.max(.04, 1 / (mean * (.5 + Math.random()))); sfx("geiger"); } $("hint2") && 0; G.geigerTxt = "☢ " + rate.toFixed(2) + " /с"; toastGeiger(); }
 }
 function toastGeiger() { const t = $("toast"); if (heldId() === I.GEIGER && !panelOpen()) { t.textContent = G.geigerTxt + " · доза " + Math.round(G.rad); t.style.opacity = 1; clearTimeout(toast.t); toast.t = setTimeout(() => (t.style.opacity = 0), 400); } }
 function reactorBoom(te) {
@@ -1943,6 +1973,7 @@ function reactorBoom(te) {
   fxBurst(cx, cy, cz, 220, [1, .72, .2], 16, 1.6, .3, .4); fxBurst(cx, cy, cz, 120, [1, .35, .08], 11, 1.2, .35, .3);
   for (let i = 0; i < 70; i++) { const a = i / 70 * 6.283; fxOne(cx, cy - .3, cz, Math.cos(a) * 15, .6, Math.sin(a) * 15, .9, [1, .9, .6], .28, 0, 1); }
   for (let i = 0; i < 90; i++) fxOne(cx + (Math.random() - .5) * 3, cy + Math.random() * 2, cz + (Math.random() - .5) * 3, (Math.random() - .5) * 2.5, 4 + Math.random() * 6, (Math.random() - .5) * 2.5, 3 + Math.random() * 3, [.3 + Math.random() * .1, .3, .3], .6 + Math.random() * .5, -.3, 1);
+  G.mush = { x: cx, y: cy, z: cz, t: 0 };
   const dpp = Math.hypot(cx - P.x, cz - P.z); G.shake = Math.max(G.shake || 0, Math.max(0, 1 - dpp / 40) * 2); G.flash = Math.max(G.flash || 0, Math.max(0, 1 - dpp / 50));
   for (let x = -R; x <= R; x++) for (let y = -R; y <= R; y++) for (let z = -R; z <= R; z++) { const d = Math.hypot(x, y, z); if (d > R || Math.random() > 1.1 - d / R * .7) continue; const b = blockAt(q[0] + x, q[1] + y, q[2] + z); if (b > 0 && b !== B.BEDROCK && BD[b]) { TE.delete((q[0] + x) + "," + (q[1] + y) + "," + (q[2] + z)); setBlock(q[0] + x, q[1] + y, q[2] + z, 0); } }
   TE.delete(te.k); G.radZones.push({ x: q[0] + .5, y: q[1], z: q[2] + .5, r: 16, t: 420 });
@@ -1950,6 +1981,14 @@ function reactorBoom(te) {
 }
 function reactorFx(dt) {
   G.rfT = (G.rfT || 0) - dt; if (G.rfT > 0) return; G.rfT = .08;
+  if (G.mush) {
+    const m = G.mush; m.t += .08; const t = m.t, top = 26 * (1 - Math.exp(-t / 2.4)), R = 2.5 + 7 * (1 - Math.exp(-t / 3)), rr = Math.random;
+    if (t < 9) {
+      for (let i = 0; i < 3; i++) { const h = rr() * top, a = rr() * 6.283, w = .7 + rr() * .9 * (1 - h / 30); fxOne(m.x + Math.cos(a) * w, m.y + h, m.z + Math.sin(a) * w, 0, 1 + rr(), 0, 1.8 + rr(), rr() < .4 ? [.95, .5 + rr() * .2, .12] : [.28, .26, .25], .7 + rr() * .5, -.1, 1); }
+      for (let i = 0; i < 7; i++) { const a = rr() * 6.283, rad = R * (.6 + rr() * .5), y = m.y + top + (rr() - .5) * 3 * Math.min(1, t / 3); const hot = Math.max(0, 1 - t / 5); fxOne(m.x + Math.cos(a) * rad, y, m.z + Math.sin(a) * rad, Math.cos(a) * .6, .4 + rr() * .5, Math.sin(a) * .6, 3 + rr() * 1.5, rr() < hot ? [1, .55 + rr() * .3, .15] : [.34 + rr() * .1, .3, .28], 1 + rr() * .8, -.05, 1); }
+    }
+    if (t > 11) G.mush = null;
+  }
   for (const [k, t] of TE) if (t.t === B.REACTOR && t.freq >= 2) {
     const q = k.split(",").map(Number); if (Math.hypot(q[0] - P.x, q[2] - P.z) > 36) continue;
     const heat = (t.p || 0) / 10000, cx = q[0] + .5, cy = q[1] + 1.02, cz = q[2] + .5;
@@ -2012,7 +2051,7 @@ let teAcc = 0;
 function teAdvance(dt) { teAcc += dt; let it = 0; while (teAcc >= .1 && it++ < 3) { teAcc -= .1; teTick(.1); } if (teAcc > .5) teAcc = 0; }
 function teTick(dt) {
   if (!TE.size) return; const seen = new Set();
-  for (const [, t0] of TE) { if (t0.t === B.TSTATION) { const a = t0.slots[0], m = t0.slots[1]; if (a && m && a.d > 0 && TOOL[a.id] && m.id in REPAIRM()) { a.d = Math.max(0, a.d - Math.ceil(durMax(a.id) * .25)); if (--m.n <= 0) t0.slots[1] = null; sfx("craft"); } } if (t0.t === B.SMELTERY) smeltTick(t0, dt, TE); else if (t0.t === B.REACTOR) { t0.rt = (t0.rt || 0) + dt; if (t0.rt >= 1) { t0.rt -= 1; reactorStep(t0); } } }
+  for (const [, t0] of TE) { if (t0.t === B.TSTATION) { const a = t0.slots[0], m = t0.slots[1]; if (a && m && a.d > 0 && TOOL[a.id] && m.id in REPAIRM()) { a.d = Math.max(0, a.d - Math.ceil(durMax(a.id) * .25)); if (--m.n <= 0) t0.slots[1] = null; sfx("craft"); } } if (t0.t === B.SMELTERY) smeltTick(t0, dt, TE); else if (t0.t === B.REACTOR) { t0.rt = (t0.rt || 0) + dt; if (t0.rt >= 1) { t0.rt -= 1; t0.cool = coolCount(t0.k); reactorStep(t0); } } }
   for (const [k, te] of TE) {
     if (!TEDEF[te.t].energy || seen.has(k)) continue;
     const comp = [], q = [k], cells = new Set([k]); seen.add(k);
@@ -2595,7 +2634,7 @@ function frame(now) {
     if (c.xcount) { gl.bindBuffer(gl.ARRAY_BUFFER, c.xvbo); gl.vertexAttribPointer(L1.pos, 4, gl.FLOAT, false, 24, 0); gl.vertexAttribPointer(L1.uv, 2, gl.FLOAT, false, 24, 16); gl.drawArrays(gl.TRIANGLES, 0, c.xcount); }
   }
   gl.disableVertexAttribArray(L1.uv);
-  drawOthers(vp, cam); drawMobs(vp, cam); drawNodes(vp, cam); drawTEItems(vp, cam); drawRotors(vp, cam); drawQuarries(vp, cam); drawFX(vp, cam, dt);
+  drawOthers(vp, cam); drawMobs(vp, cam); drawNodes(vp, cam); drawTEItems(vp, cam); drawRotors(vp, cam); drawQuarries(vp, cam); drawReactorRods(vp, cam); drawFX(vp, cam, dt);
   if (vis.length) {
     gl.useProgram(P1); gl.enableVertexAttribArray(L1.pos); gl.enableVertexAttribArray(L1.uv); gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); gl.depthMask(false); gl.disable(gl.CULL_FACE); gl.uniform1f(L1.alpha, .62); gl.uniform1f(L1.wv, 1);
     for (const c of vis) { gl.uniform3f(L1.off, c.cx * CS - cam[0], -cam[1], c.cz * CS - cam[2]); gl.bindBuffer(gl.ARRAY_BUFFER, c.wvbo); gl.vertexAttribPointer(L1.pos, 4, gl.UNSIGNED_BYTE, false, 8, 0); gl.vertexAttribPointer(L1.uv, 2, gl.UNSIGNED_SHORT, true, 8, 4); gl.drawArrays(gl.TRIANGLES, 0, c.wcount); }

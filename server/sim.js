@@ -1,6 +1,6 @@
 "use strict";
 /* Симуляция механизмов на сервере. Разработчик: @yfeeeee. Идентификаторы должны совпадать с index.html */
-const B = { LOG: 5, PLANKS: 7, COBBLE: 8, SAND: 4, GLASS: 15, STONE: 3, CHEST: 23, CABLE: 24, GENERATOR: 25, SOLAR: 26, SMELTER: 27, MACERATOR: 28, BATTERY: 29, MECABLE: 30, TERMINAL: 31, CRUCIBLE: 32, DRIVE: 33, QBRIDGE: 35, JAR: 38, PEDESTAL: 47, CHEST_IRON: 48, CHEST_GOLD: 49, CHEST_DIAMOND: 50, INFUSION: 34, PRESS: 51, MILL: 52, SMELTERY: 53, TANK: 54, CAST: 55, WHEEL: 56, WINDMILL: 57, REACTOR: 64, CHARGER: 65, MFE: 66, COMPRESSOR: 70, SHAFT: 67, COGWHEEL: 68, WATER: 21 };
+const B = { LOG: 5, PLANKS: 7, COBBLE: 8, SAND: 4, GLASS: 15, STONE: 3, CHEST: 23, CABLE: 24, GENERATOR: 25, SOLAR: 26, SMELTER: 27, MACERATOR: 28, BATTERY: 29, MECABLE: 30, TERMINAL: 31, CRUCIBLE: 32, DRIVE: 33, QBRIDGE: 35, JAR: 38, PEDESTAL: 47, CHEST_IRON: 48, CHEST_GOLD: 49, CHEST_DIAMOND: 50, INFUSION: 34, PRESS: 51, MILL: 52, SMELTERY: 53, TANK: 54, CAST: 55, WHEEL: 56, WINDMILL: 57, REACTOR: 64, CHARGER: 65, MFE: 66, COMPRESSOR: 70, COOLER: 84, QUARRY: 83, SHAFT: 67, COGWHEEL: 68, WATER: 21 };
 const I = { STICK: 100, COAL: 101, RAW_COPPER: 102, RAW_TIN: 103, RAW_IRON: 104, RAW_GOLD: 105, ING_COPPER: 107, ING_TIN: 108, ING_IRON: 109, ING_GOLD: 110, RAW_MEAT: 180, COOKED: 181, DUST_COPPER: 190, DUST_TIN: 191, DUST_IRON: 192, DUST_GOLD: 193 };
 const FUEL = { [I.COAL]: 40, [B.LOG]: 10, [B.PLANKS]: 5, [I.STICK]: 2 };
 const SMELT = { [I.RAW_COPPER]: I.ING_COPPER, [I.RAW_TIN]: I.ING_TIN, [I.RAW_IRON]: I.ING_IRON, [I.RAW_GOLD]: I.ING_GOLD, [I.DUST_COPPER]: I.ING_COPPER, [I.DUST_TIN]: I.ING_TIN, [I.DUST_IRON]: I.ING_IRON, [I.DUST_GOLD]: I.ING_GOLD, [B.SAND]: B.GLASS, [B.COBBLE]: B.STONE, [I.RAW_MEAT]: I.COOKED };
@@ -47,11 +47,12 @@ function reactorStep(te) {
     else if (k.id === 256) { for (const n of nbs(r, c)) if (RHEAT[n.s.id]) { n.s.h = n.s.h || 0; const d = (n.s.h / HMAX[n.s.id] - k.h / 2500) * 400, t = Math.max(-4, Math.min(4, d)); n.s.h -= t; k.h += t; } const t2 = Math.min(4, hull); hull -= t2; k.h += t2; }
     if (k.h >= HMAX[k.id]) s[r * W + c] = null;
   }
-  hull += hullAdd; if (!on) hull -= 2; te.p = Math.max(0, hull); te.e = on ? eu : 0;
+  hull -= (te.cool || 0) * 12; hull += hullAdd; if (!on) hull -= 2; te.p = Math.max(0, hull); te.e = on ? eu : 0;
 }
+function coolCount(k, blockAt) { const q = k.split(",").map(Number); let n = 0; for (const d of DIRS) if (blockAt(q[0] + d[0], q[1] + d[1], q[2] + d[2]) === B.COOLER) n++; return n; }
 function tick(TE, blockAt, dt, sun) {
   const seen = new Set();
-  for (const [, t0] of TE) if (t0.t === B.REACTOR) { t0.rt = (t0.rt || 0) + dt; if (t0.rt >= 1) { t0.rt -= 1; reactorStep(t0); } }
+  for (const [, t0] of TE) if (t0.t === B.REACTOR) { t0.rt = (t0.rt || 0) + dt; if (t0.rt >= 1) { t0.rt -= 1; t0.cool = coolCount(t0.k, blockAt); reactorStep(t0); } }
   for (const [, t0] of TE) if (t0.t === B.SMELTERY) smeltTick(t0, dt, TE);
   for (const [k, te] of TE) {
     if (!TEDEF[te.t] || !TEDEF[te.t].energy || seen.has(k)) continue;
