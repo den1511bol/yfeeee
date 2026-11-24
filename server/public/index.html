@@ -427,7 +427,7 @@ const ORE_COL = { coal: [34, 34, 40], copper: [214, 120, 70], tin: [200, 214, 22
 function genTile(name) {
   const cv = document.createElement("canvas"); cv.width = cv.height = TS; const ctx = cv.getContext("2d"); const img = ctx.createImageData(TS, TS);
   const rnd = mkRng(name.length * 977 + name.charCodeAt(0) * 31);
-  if (name === "stone") cel(img, [128, 131, 138], 5, 11);
+  if (name === "stone") { cel(img, [128, 131, 138], 5, 11); for (let i = 0; i < 5; i++) { let x = Math.floor(rnd() * TS), y = Math.floor(rnd() * TS); for (let k = 0; k < 4 + Math.floor(rnd() * 4); k++) { setpx(img, x, y, [92, 94, 102]); x += rnd() < .5 ? 1 : 0; y += rnd() < .5 ? 1 : 0; } } for (let i = 0; i < 18; i++) setpx(img, Math.floor(rnd() * TS), Math.floor(rnd() * TS), [150, 152, 160]); }
   else if (name === "dirt") { cel(img, [124, 86, 56], 4, 12); for (let i = 0; i < 14; i++) blob(img, Math.floor(rnd() * TS), Math.floor(rnd() * TS), 1, [92, 62, 38]); }
   else if (name === "sand") { cel(img, [228, 214, 162], 6, 13, [.93, 1, 1.06], .9); for (let i = 0; i < 26; i++) setpx(img, Math.floor(rnd() * TS), Math.floor(rnd() * TS), [196, 180, 128]); }
   else if (name === "grass_top") { cel(img, [98, 172, 60], 5, 14, [.84, 1, 1.15], .8); for (let i = 0; i < 30; i++) { const x = Math.floor(rnd() * TS), y = Math.floor(rnd() * TS); setpx(img, x, y, [140, 212, 90]); setpx(img, x, y + 1, [140, 212, 90]); } }
